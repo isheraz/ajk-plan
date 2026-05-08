@@ -1,0 +1,1472 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AJK PSC — Results Module Spec</title>
+<style>
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:    #0f172a;
+    --ink:     #1e293b;
+    --mid:     #475569;
+    --muted:   #94a3b8;
+    --border:  #e2e8f0;
+    --bg:      #f8fafc;
+    --white:   #ffffff;
+
+    --blue:    #3b82f6;
+    --blue-lt: #eff6ff;
+    --blue-dk: #1d4ed8;
+
+    --green:   #16a34a;
+    --green-lt:#f0fdf4;
+
+    --amber:   #d97706;
+    --amber-lt:#fffbeb;
+
+    --red:     #dc2626;
+    --red-lt:  #fef2f2;
+
+    --purple:  #7c3aed;
+    --purple-lt:#f5f3ff;
+
+    --sidebar-w: 272px;
+    --content-max: 900px;
+    --radius: 6px;
+    --mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    font-size: 14.5px;
+    line-height: 1.7;
+    color: var(--ink);
+    background: var(--bg);
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── Sidebar ── */
+  #sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: var(--sidebar-w);
+    height: 100vh;
+    background: var(--navy);
+    overflow-y: auto;
+    padding: 24px 0 40px;
+    z-index: 100;
+    flex-shrink: 0;
+  }
+
+  #sidebar::-webkit-scrollbar { width: 4px; }
+  #sidebar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+  .sidebar-logo {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid #1e293b;
+    margin-bottom: 16px;
+  }
+  .sidebar-logo .org { font-size: 11px; font-weight: 600; color: #64748b; letter-spacing: 1.2px; text-transform: uppercase; }
+  .sidebar-logo .title { font-size: 14px; font-weight: 700; color: #f1f5f9; margin-top: 4px; line-height: 1.3; }
+  .sidebar-logo .badge {
+    display: inline-block; margin-top: 8px;
+    background: #1e3a5f; color: #60a5fa;
+    font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; letter-spacing: .5px;
+  }
+
+  .nav-section { padding: 4px 0; }
+  .nav-section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase;
+    color: #475569; padding: 10px 20px 4px;
+  }
+
+  .nav-link {
+    display: block; padding: 5px 20px 5px 24px;
+    font-size: 12.5px; color: #94a3b8;
+    text-decoration: none; border-left: 2px solid transparent;
+    transition: all .15s;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .nav-link:hover { color: #e2e8f0; background: #1e293b; }
+  .nav-link.active { color: #60a5fa; border-left-color: #3b82f6; background: #1e293b; }
+  .nav-link.sub { padding-left: 36px; font-size: 11.5px; color: #64748b; }
+  .nav-link.sub:hover { color: #94a3b8; }
+
+  /* ── Main content ── */
+  #main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    padding: 48px 56px 80px;
+    max-width: calc(var(--sidebar-w) + var(--content-max) + 112px);
+  }
+
+  /* ── Page header ── */
+  .page-header {
+    background: linear-gradient(135deg, var(--navy) 0%, #1e3a5f 100%);
+    border-radius: 10px;
+    padding: 36px 40px;
+    margin-bottom: 48px;
+    color: white;
+  }
+  .page-header .pre-title { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: #60a5fa; margin-bottom: 10px; }
+  .page-header h1 { font-size: 26px; font-weight: 800; line-height: 1.2; }
+  .page-header .meta { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.15);
+    color: #cbd5e1; font-size: 12px; font-weight: 500;
+    padding: 4px 12px; border-radius: 20px;
+  }
+  .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; }
+
+  /* ── Section headers ── */
+  h2.section-heading {
+    font-size: 20px; font-weight: 800; color: var(--navy);
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 10px; margin: 48px 0 24px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  h2.section-heading .section-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 6px;
+    font-size: 13px; font-weight: 700; color: white; flex-shrink: 0;
+  }
+
+  h3.sub-heading {
+    font-size: 15px; font-weight: 700; color: var(--ink);
+    margin: 32px 0 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  h3.sub-heading::before {
+    content: ''; display: block; width: 3px; height: 18px;
+    border-radius: 2px; background: var(--blue);
+  }
+
+  h4 { font-size: 13px; font-weight: 700; color: var(--mid); margin: 20px 0 8px; text-transform: uppercase; letter-spacing: .6px; }
+
+  p { margin-bottom: 14px; color: var(--ink); }
+
+  /* ── Colour theme overrides per section ── */
+  .section-dto   h3.sub-heading::before { background: var(--blue); }
+  .section-uj    h3.sub-heading::before { background: var(--green); }
+  .section-uc    h3.sub-heading::before { background: var(--purple); }
+
+  /* ── Code blocks ── */
+  .code-wrap { margin: 16px 0; border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .code-label {
+    background: #1e293b; color: #64748b;
+    font-family: var(--mono); font-size: 11px;
+    padding: 7px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid #334155;
+  }
+  .code-label .lang { color: #7dd3fc; font-weight: 600; }
+  pre {
+    background: #0f172a;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.65;
+  }
+  pre::-webkit-scrollbar { height: 4px; }
+  pre::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+  code { font-family: var(--mono); }
+
+  /* Syntax colours */
+  .k  { color: #c084fc; } /* keywords: final, readonly, public, enum */
+  .t  { color: #7dd3fc; } /* types */
+  .s  { color: #86efac; } /* strings */
+  .n  { color: #fde68a; } /* identifiers / variables */
+  .cm { color: #475569; font-style: italic; } /* comments */
+  .at { color: #fb923c; } /* attributes #[...] */
+  .nu { color: #f9a8d4; } /* numbers */
+  .kw { color: #818cf8; } /* interface, type, export */
+  .op { color: #94a3b8; } /* operators */
+
+  /* inline code */
+  code:not(pre code) {
+    background: #f1f5f9; color: #7c3aed;
+    font-size: 12.5px; padding: 1px 5px;
+    border-radius: 4px; font-family: var(--mono);
+  }
+
+  /* ── Tables ── */
+  .tbl-wrap { overflow-x: auto; margin: 16px 0; border-radius: var(--radius); border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { background: var(--ink); color: white; }
+  thead th { padding: 10px 14px; text-align: left; font-weight: 600; font-size: 12px; letter-spacing: .3px; }
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:nth-child(even) { background: #f8fafc; }
+  tbody td { padding: 9px 14px; vertical-align: top; }
+  tbody td:first-child { font-weight: 600; color: var(--blue-dk); white-space: nowrap; }
+
+  /* ── Cards ── */
+  .card {
+    background: white; border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px 24px; margin: 16px 0;
+  }
+  .card-blue   { border-left: 4px solid var(--blue);   background: var(--blue-lt); }
+  .card-green  { border-left: 4px solid var(--green);  background: var(--green-lt); }
+  .card-amber  { border-left: 4px solid var(--amber);  background: var(--amber-lt); }
+  .card-red    { border-left: 4px solid var(--red);    background: var(--red-lt); }
+  .card-purple { border-left: 4px solid var(--purple); background: var(--purple-lt); }
+
+  /* ── Use case box ── */
+  .uc-box {
+    background: white; border: 1px solid var(--border); border-radius: 8px;
+    margin: 28px 0; overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  }
+  .uc-header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 22px; border-bottom: 1px solid var(--border);
+    background: #f8fafc;
+  }
+  .uc-id {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    background: var(--purple); color: white;
+    padding: 3px 10px; border-radius: 4px; white-space: nowrap;
+  }
+  .uc-title { font-size: 15px; font-weight: 700; color: var(--navy); }
+  .uc-actor { font-size: 12px; color: var(--mid); margin-left: auto; white-space: nowrap; }
+  .uc-body { padding: 20px 22px; }
+
+  .uc-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .uc-meta-item { background: #f8fafc; border: 1px solid var(--border); border-radius: 5px; padding: 10px 14px; }
+  .uc-meta-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 4px; }
+  .uc-meta-val { font-size: 13px; color: var(--ink); }
+
+  .flow-list { list-style: none; padding: 0; }
+  .flow-list li {
+    display: flex; gap: 12px; padding: 8px 0;
+    border-bottom: 1px solid #f1f5f9; font-size: 13.5px;
+  }
+  .flow-list li:last-child { border-bottom: none; }
+  .step-num {
+    display: flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; min-width: 22px;
+    border-radius: 50%; background: var(--blue); color: white;
+    font-size: 11px; font-weight: 700; margin-top: 2px;
+  }
+
+  .alt-list { list-style: none; padding: 0; }
+  .alt-list li { padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 13px; display: flex; gap: 10px; }
+  .alt-list li:last-child { border-bottom: none; }
+  .alt-tag {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+    background: var(--amber-lt); color: var(--amber);
+    border: 1px solid #fcd34d; padding: 1px 7px; border-radius: 3px;
+    white-space: nowrap; height: fit-content; margin-top: 2px;
+  }
+
+  .pre-post { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .pp-box { border-radius: 5px; padding: 12px 16px; font-size: 13px; }
+  .pp-pre  { background: #fef9c3; border: 1px solid #fcd34d; }
+  .pp-post { background: #dcfce7; border: 1px solid #86efac; }
+  .pp-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 6px; }
+  .pp-box ul { padding-left: 16px; }
+  .pp-box li { margin-bottom: 4px; }
+
+  /* ── Journey box ── */
+  .journey-box {
+    background: white; border: 1px solid var(--border); border-radius: 8px;
+    margin: 28px 0; overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  }
+  .journey-header {
+    padding: 16px 22px; border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, #052e16 0%, #14532d 100%); color: white;
+  }
+  .journey-num { font-size: 11px; font-weight: 700; color: #4ade80; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+  .journey-title { font-size: 16px; font-weight: 800; }
+  .journey-sub { font-size: 12px; color: #86efac; margin-top: 4px; }
+  .journey-body { padding: 22px; }
+
+  .journey-meta { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
+  .jm-item { font-size: 12.5px; }
+  .jm-label { color: var(--muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 2px; }
+  .jm-val { font-weight: 600; color: var(--ink); }
+
+  .step-section { margin: 18px 0; }
+  .step-section h4 { color: var(--green); margin-bottom: 10px; font-size: 12.5px; }
+
+  .alt-path {
+    background: #fffbeb; border: 1px solid #fcd34d; border-radius: 5px;
+    padding: 10px 14px; margin-top: 10px; font-size: 13px;
+  }
+  .alt-path strong { color: var(--amber); }
+
+  /* ── Conventions box ── */
+  .conventions {
+    background: #0f172a; border-radius: 8px; padding: 20px 24px; margin: 16px 0;
+  }
+  .conventions p { color: #94a3b8; font-size: 13px; margin-bottom: 8px; }
+  .conventions p:last-child { margin-bottom: 0; }
+  .conventions strong { color: #e2e8f0; }
+
+  /* ── Priority badge ── */
+  .badge { display: inline-block; font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+  .badge-p0 { background: #fef2f2; color: #dc2626; }
+  .badge-p1 { background: #fffbeb; color: #d97706; }
+
+  /* ── Actor chips in UC table ── */
+  .actor-chip {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 20px;
+    background: var(--blue-lt); color: var(--blue-dk);
+  }
+
+  /* ── Divider ── */
+  hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--border);
+    font-size: 12px; color: var(--muted); text-align: center;
+  }
+
+  /* ── Print ── */
+  @media print {
+    #sidebar { display: none; }
+    #main { margin-left: 0; padding: 20px; }
+    .uc-box, .journey-box { break-inside: avoid; }
+    .code-wrap { break-inside: avoid; }
+    pre { white-space: pre-wrap; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════
+     SIDEBAR
+════════════════════════════════════════════════════ -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <div class="org">AJK PSC · Admin Portal</div>
+    <div class="title">Results Module<br>Specification</div>
+    <span class="badge">PHP 8.3 · ReactJS</span>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">DTOs</div>
+    <a class="nav-link" href="#dto-conventions">Conventions</a>
+    <a class="nav-link" href="#dto-mark-entry">① Mark Entry</a>
+    <a class="nav-link sub" href="#dto-mark-req">Request DTOs</a>
+    <a class="nav-link sub" href="#dto-mark-res">Response DTOs</a>
+    <a class="nav-link sub" href="#dto-mark-ts">TypeScript</a>
+    <a class="nav-link" href="#dto-result-view">② Result View &amp; Print</a>
+    <a class="nav-link sub" href="#dto-rv-req">Request DTOs</a>
+    <a class="nav-link sub" href="#dto-rv-res">Response DTOs</a>
+    <a class="nav-link" href="#dto-award">③ Award List</a>
+    <a class="nav-link sub" href="#dto-award-req">Request DTOs</a>
+    <a class="nav-link sub" href="#dto-award-res">Response DTOs</a>
+    <a class="nav-link" href="#dto-merit">④ Merit Rotation</a>
+    <a class="nav-link" href="#dto-publish">⑤ Publication</a>
+    <a class="nav-link" href="#dto-shared">Shared Types</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">User Journeys</div>
+    <a class="nav-link" href="#uj1">① Data Entry Officer</a>
+    <a class="nav-link" href="#uj2">② Results Admin</a>
+    <a class="nav-link" href="#uj3">③ Interview Secretary</a>
+    <a class="nav-link" href="#uj4">④ Senior Admin</a>
+    <a class="nav-link" href="#uj5">⑤ Publication Officer</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Use Cases</div>
+    <a class="nav-link" href="#uc-register">Register</a>
+    <a class="nav-link" href="#uc-r01">UC-R01 Enter Marks</a>
+    <a class="nav-link" href="#uc-r02">UC-R02 CSV Import</a>
+    <a class="nav-link" href="#uc-r03">UC-R03 View &amp; Print</a>
+    <a class="nav-link" href="#uc-r04">UC-R04 Award List</a>
+    <a class="nav-link" href="#uc-r05">UC-R05 Interview Marks</a>
+    <a class="nav-link" href="#uc-r06">UC-R06 Status Update</a>
+    <a class="nav-link" href="#uc-r07">UC-R07 Merit Rotation</a>
+    <a class="nav-link" href="#uc-r08">UC-R08 Publish / Withdraw</a>
+  </div>
+</nav>
+
+<!-- ════════════════════════════════════════════════════
+     MAIN
+════════════════════════════════════════════════════ -->
+<main id="main">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="pre-title">Technical Specification · v1.0 · 2026-05-08</div>
+    <h1>AJK PSC — Results Module</h1>
+    <div class="meta">
+      <span class="pill"><span class="dot"></span>PHP 8.3+</span>
+      <span class="pill"><span class="dot"></span>ReactJS + TypeScript</span>
+      <span class="pill"><span class="dot"></span>5 Sub-Modules</span>
+      <span class="pill"><span class="dot"></span>8 Use Cases</span>
+      <span class="pill"><span class="dot"></span>5 User Journeys</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SECTION 1 — DTOs
+  ══════════════════════════════════════════════ -->
+  <section class="section-dto">
+    <h2 class="section-heading" id="dtos">
+      <span class="section-num" style="background:var(--blue)">1</span>
+      Request &amp; Response DTOs
+    </h2>
+
+    <!-- Conventions -->
+    <div id="dto-conventions"></div>
+    <h3 class="sub-heading">Conventions</h3>
+    <div class="conventions">
+      <p><strong>PHP backend</strong> uses <code>readonly</code> classes (PHP 8.2+) with constructor promotion and named arguments.</p>
+      <p><strong>TypeScript frontend</strong> mirrors them as interfaces consumed by React Query hooks.</p>
+      <p>Validation uses <code>symfony/validator</code> annotations — adapt to Laravel <code>FormRequest</code> if using Laravel.</p>
+      <p>All timestamps are <strong>ISO 8601</strong> strings in responses (<code>2025-03-15T10:30:00Z</code>). Nullable fields are marked <code>?</code> in TypeScript and <code>?Type</code> in PHP.</p>
+    </div>
+
+    <!-- ── 1.1 Mark Entry ── -->
+    <div id="dto-mark-entry"></div>
+    <h3 class="sub-heading" style="margin-top:36px">① Mark Entry</h3>
+
+    <div id="dto-mark-req"></div>
+    <h4>Request DTOs — PHP</h4>
+
+    <div class="code-wrap">
+      <div class="code-label"><span>POST /api/results/marks — Manual single-candidate entry</span><span class="lang">PHP 8.3</span></div>
+      <pre><span class="k">final readonly class</span> <span class="t">MarkEntryRequest</span>
+{
+    <span class="k">public function</span> <span class="n">__construct</span>(
+        <span class="at">#[NotBlank]</span>
+        <span class="k">public</span> <span class="t">int</span>    <span class="n">$applicationId</span>,
+
+        <span class="at">#[NotBlank]</span>
+        <span class="k">public</span> <span class="t">int</span>    <span class="n">$jobPostId</span>,
+
+        <span class="at">#[NotBlank, Date]</span>
+        <span class="k">public</span> <span class="t">string</span> <span class="n">$examDate</span>,           <span class="cm">// YYYY-MM-DD</span>
+
+        <span class="at">#[NotBlank, Choice(['detailed', 'summary'])]</span>
+        <span class="k">public</span> <span class="t">string</span> <span class="n">$resultType</span>,
+
+        <span class="at">#[NotBlank, Positive]</span>
+        <span class="k">public</span> <span class="t">int</span>    <span class="n">$totalMaxMarks</span>,
+
+        <span class="at">#[NotBlank, Positive]</span>
+        <span class="k">public</span> <span class="t">int</span>    <span class="n">$passingMarks</span>,
+
+        <span class="cm">// Required only when resultType === 'summary'</span>
+        <span class="at">#[PositiveOrZero]</span>
+        <span class="k">public</span> <span class="t">?int</span>   <span class="n">$obtainedMarks</span> = <span class="nu">null</span>,
+
+        <span class="cm">// Required only when resultType === 'detailed' — @var SubjectMarkDTO[]</span>
+        <span class="at">#[Valid]</span>
+        <span class="k">public</span> <span class="t">array</span>  <span class="n">$subjects</span> = [],
+
+        <span class="at">#[Choice(['pass', 'fail', 'absent', 'withheld'])]</span>
+        <span class="k">public</span> <span class="t">?string</span> <span class="n">$statusOverride</span> = <span class="nu">null</span>, <span class="cm">// null = auto-computed</span>
+    ) {}
+}
+
+<span class="k">final readonly class</span> <span class="t">SubjectMarkDTO</span>
+{
+    <span class="k">public function</span> <span class="n">__construct</span>(
+        <span class="at">#[NotBlank, Length(max: 150)]</span>
+        <span class="k">public</span> <span class="t">string</span> <span class="n">$subjectName</span>,
+
+        <span class="at">#[NotBlank, Positive]</span>
+        <span class="k">public</span> <span class="t">int</span>    <span class="n">$maxMarks</span>,
+
+        <span class="at">#[NotBlank, PositiveOrZero]</span>
+        <span class="k">public</span> <span class="t">int</span>    <span class="n">$obtainedMarks</span>,
+
+        <span class="at">#[PositiveOrZero]</span>
+        <span class="k">public</span> <span class="t">int</span>    <span class="n">$subjectOrder</span> = <span class="nu">0</span>,
+    ) {}
+}
+
+<span class="k">final readonly class</span> <span class="t">CSVImportRequest</span>
+{
+    <span class="k">public function</span> <span class="n">__construct</span>(
+        <span class="at">#[NotBlank]</span>
+        <span class="k">public</span> <span class="t">int</span>    <span class="n">$jobPostId</span>,
+
+        <span class="at">#[NotBlank, Date]</span>
+        <span class="k">public</span> <span class="t">string</span> <span class="n">$examDate</span>,
+
+        <span class="at">#[NotBlank, Choice(['detailed', 'summary'])]</span>
+        <span class="k">public</span> <span class="t">string</span> <span class="n">$resultType</span>,
+
+        <span class="at">#[NotBlank, File(mimeTypes: ['text/csv', 'text/plain'], maxSize: '5M')]</span>
+        <span class="k">public</span> <span class="t">mixed</span>  <span class="n">$file</span>,              <span class="cm">// UploadedFile</span>
+
+        <span class="k">public</span> <span class="t">bool</span>   <span class="n">$dryRun</span> = <span class="nu">false</span>,    <span class="cm">// validate without persisting</span>
+    ) {}
+}
+
+<span class="k">final readonly class</span> <span class="t">UpdateMarkRequest</span>
+{
+    <span class="k">public function</span> <span class="n">__construct</span>(
+        <span class="at">#[PositiveOrZero]</span>
+        <span class="k">public</span> <span class="t">?int</span>   <span class="n">$obtainedMarks</span> = <span class="nu">null</span>,
+
+        <span class="at">#[Valid]</span>
+        <span class="k">public</span> <span class="t">array</span>  <span class="n">$subjects</span> = [],
+
+        <span class="at">#[NotBlank, Length(min: 5, max: 500)]</span>
+        <span class="k">public</span> <span class="t">string</span> <span class="n">$editReason</span>,        <span class="cm">// mandatory justification</span>
+    ) {}
+}</pre>
+    </div>
+
+    <div id="dto-mark-res"></div>
+    <h4>Response DTOs — PHP</h4>
+
+    <div class="code-wrap">
+      <div class="code-label"><span>ExamResultResponse + SubjectMarkResponse</span><span class="lang">PHP 8.3</span></div>
+      <pre><span class="k">final readonly class</span> <span class="t">ExamResultResponse</span>
+{
+    <span class="k">public function</span> <span class="n">__construct</span>(
+        <span class="k">public</span> <span class="t">int</span>     <span class="n">$id</span>,
+        <span class="k">public</span> <span class="t">int</span>     <span class="n">$applicationId</span>,
+        <span class="k">public</span> <span class="t">int</span>     <span class="n">$jobPostId</span>,
+        <span class="k">public</span> <span class="t">string</span>  <span class="n">$examDate</span>,
+        <span class="k">public</span> <span class="t">string</span>  <span class="n">$resultType</span>,        <span class="cm">// 'detailed' | 'summary'</span>
+        <span class="k">public</span> <span class="t">int</span>     <span class="n">$totalMaxMarks</span>,
+        <span class="k">public</span> <span class="t">int</span>     <span class="n">$passingMarks</span>,
+        <span class="k">public</span> <span class="t">int</span>     <span class="n">$obtainedMarks</span>,
+        <span class="k">public</span> <span class="t">float</span>   <span class="n">$percentage</span>,
+        <span class="k">public</span> <span class="t">string</span>  <span class="n">$status</span>,            <span class="cm">// 'pass'|'fail'|'absent'|'withheld'</span>
+        <span class="k">public</span> <span class="t">bool</span>    <span class="n">$isPublished</span>,
+        <span class="k">public</span> <span class="t">?string</span> <span class="n">$publishedAt</span>,
+        <span class="k">public</span> <span class="t">string</span>  <span class="n">$createdAt</span>,
+        <span class="k">public</span> <span class="t">string</span>  <span class="n">$updatedAt</span>,
+        <span class="cm">/** @var SubjectMarkResponse[] */</span>
+        <span class="k">public</span> <span class="t">array</span>   <span class="n">$subjects</span> = [],     <span class="cm">// empty for summary</span>
+        <span class="k">public</span> <span class="t">?UserSummary</span> <span class="n">$createdBy</span> = <span class="nu">null</span>,
+        <span class="k">public</span> <span class="t">?UserSummary</span> <span class="n">$updatedBy</span> = <span class="nu">null</span>,
+    ) {}
+}
+
+<span class="k">final readonly class</span> <span class="t">SubjectMarkResponse</span>
+{
+    <span class="k">public function</span> <span class="n">__construct</span>(
+        <span class="k">public</span> <span class="t">int</span>    <span class="n">$id</span>,
+        <span class="k">public</span> <span class="t">string</span> <span class="n">$subjectName</span>,
+        <span class="k">public</span> <span class="t">int</span>    <span class="n">$maxMarks</span>,
+        <span class="k">public</span> <span class="t">int</span>    <span class="n">$obtainedMarks</span>,
+        <span class="k">public</span> <span class="t">int</span>    <span class="n">$subjectOrder</span>,
+        <span class="k">public</span> <span class="t">string</span> <span class="n">$enteredAt</span>,
+        <span class="k">public</span> <span class="t">UserSummary</span> <span class="n">$enteredBy</span>,
+    ) {}
+}
+
+<span class="k">final readonly class</span> <span class="t">CSVImportPreviewResponse</span>
+{
+    <span class="k">public function</span> <span class="n">__construct</span>(
+        <span class="k">public</span> <span class="t">int</span>   <span class="n">$totalRows</span>,
+        <span class="k">public</span> <span class="t">int</span>   <span class="n">$validRows</span>,
+        <span class="k">public</span> <span class="t">int</span>   <span class="n">$errorRows</span>,
+        <span class="cm">/** @var CSVRowError[] */</span>
+        <span class="k">public</span> <span class="t">array</span> <span class="n">$errors</span>,
+        <span class="cm">/** @var ExamResultResponse[] */</span>
+        <span class="k">public</span> <span class="t">array</span> <span class="n">$preview</span>,
+    ) {}
+}</pre>
+    </div>
+
+    <div id="dto-mark-ts"></div>
+    <h4>TypeScript — Frontend</h4>
+
+    <div class="code-wrap">
+      <div class="code-label"><span>src/types/results/markEntry.ts</span><span class="lang">TypeScript</span></div>
+      <pre><span class="kw">export interface</span> <span class="t">SubjectMarkDTO</span> {
+  subjectName<span class="op">:</span> <span class="t">string</span>;
+  maxMarks<span class="op">:</span> <span class="t">number</span>;
+  obtainedMarks<span class="op">:</span> <span class="t">number</span>;
+  subjectOrder<span class="op">?:</span> <span class="t">number</span>;
+}
+
+<span class="kw">export interface</span> <span class="t">MarkEntryRequest</span> {
+  applicationId<span class="op">:</span> <span class="t">number</span>;
+  jobPostId<span class="op">:</span> <span class="t">number</span>;
+  examDate<span class="op">:</span> <span class="t">string</span>;                    <span class="cm">// YYYY-MM-DD</span>
+  resultType<span class="op">:</span> <span class="s">'detailed'</span> <span class="op">|</span> <span class="s">'summary'</span>;
+  totalMaxMarks<span class="op">:</span> <span class="t">number</span>;
+  passingMarks<span class="op">:</span> <span class="t">number</span>;
+  obtainedMarks<span class="op">?:</span> <span class="t">number</span>;              <span class="cm">// summary only</span>
+  subjects<span class="op">?:</span> <span class="t">SubjectMarkDTO</span>[];         <span class="cm">// detailed only</span>
+  statusOverride<span class="op">?:</span> <span class="s">'pass'</span> <span class="op">|</span> <span class="s">'fail'</span> <span class="op">|</span> <span class="s">'absent'</span> <span class="op">|</span> <span class="s">'withheld'</span>;
+}
+
+<span class="kw">export interface</span> <span class="t">ExamResultResponse</span> {
+  id<span class="op">:</span> <span class="t">number</span>;
+  applicationId<span class="op">:</span> <span class="t">number</span>;
+  jobPostId<span class="op">:</span> <span class="t">number</span>;
+  examDate<span class="op">:</span> <span class="t">string</span>;
+  resultType<span class="op">:</span> <span class="s">'detailed'</span> <span class="op">|</span> <span class="s">'summary'</span>;
+  totalMaxMarks<span class="op">:</span> <span class="t">number</span>;
+  passingMarks<span class="op">:</span> <span class="t">number</span>;
+  obtainedMarks<span class="op">:</span> <span class="t">number</span>;
+  percentage<span class="op">:</span> <span class="t">number</span>;
+  status<span class="op">:</span> <span class="s">'pass'</span> <span class="op">|</span> <span class="s">'fail'</span> <span class="op">|</span> <span class="s">'absent'</span> <span class="op">|</span> <span class="s">'withheld'</span>;
+  isPublished<span class="op">:</span> <span class="t">boolean</span>;
+  publishedAt<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
+  createdAt<span class="op">:</span> <span class="t">string</span>;
+  updatedAt<span class="op">:</span> <span class="t">string</span>;
+  subjects<span class="op">:</span> <span class="t">SubjectMarkResponse</span>[];
+  createdBy<span class="op">:</span> <span class="t">UserSummary</span> <span class="op">|</span> <span class="t">null</span>;
+  updatedBy<span class="op">:</span> <span class="t">UserSummary</span> <span class="op">|</span> <span class="t">null</span>;
+}
+
+<span class="kw">export interface</span> <span class="t">CSVImportPreviewResponse</span> {
+  totalRows<span class="op">:</span> <span class="t">number</span>;
+  validRows<span class="op">:</span> <span class="t">number</span>;
+  errorRows<span class="op">:</span> <span class="t">number</span>;
+  errors<span class="op">:</span> <span class="t">Array</span>&lt;{ rowNumber<span class="op">:</span> <span class="t">number</span>; rollNo<span class="op">:</span> <span class="t">string</span>; field<span class="op">:</span> <span class="t">string</span>; message<span class="op">:</span> <span class="t">string</span> }&gt;;
+  preview<span class="op">:</span> <span class="t">ExamResultResponse</span>[];
+}</pre>
+    </div>
+
+    <!-- ── 1.2 Result View ── -->
+    <div id="dto-result-view"></div>
+    <h3 class="sub-heading">② Result View &amp; Print</h3>
+
+    <div id="dto-rv-req"></div>
+    <h4>Request DTOs — PHP</h4>
+
+    <div class="code-wrap">
+      <div class="code-label"><span>GET /api/results/candidate + PDF request</span><span class="lang">PHP 8.3</span></div>
+      <pre><span class="k">final readonly class</span> <span class="t">CandidateResultSearchRequest</span>
+{
+    <span class="k">public function</span> <span class="n">__construct</span>(
+        <span class="at">#[NotBlank]</span>
+        <span class="k">public</span> <span class="t">int</span>    <span class="n">$jobPostId</span>,
+
+        <span class="at">#[NotBlank, Date]</span>
+        <span class="k">public</span> <span class="t">string</span> <span class="n">$examDate</span>,
+
+        <span class="cm">// Exactly one of rollNo or cnic must be provided</span>
+        <span class="k">public</span> <span class="t">?string</span> <span class="n">$rollNo</span> = <span class="nu">null</span>,
+
+        <span class="at">#[Length(exactly: 15)]</span>
+        <span class="k">public</span> <span class="t">?string</span> <span class="n">$cnic</span> = <span class="nu">null</span>,
+
+        <span class="at">#[Choice(['full', 'masked'])]</span>
+        <span class="k">public</span> <span class="t">string</span>  <span class="n">$cnicDisplay</span> = <span class="s">'masked'</span>,
+    ) {}
+}
+
+<span class="k">final readonly class</span> <span class="t">ResultPDFRequest</span>
+{
+    <span class="k">public function</span> <span class="n">__construct</span>(
+        <span class="k">public</span> <span class="t">int</span>    <span class="n">$resultId</span>,
+
+        <span class="at">#[Choice(['official', 'unofficial'])]</span>
+        <span class="k">public</span> <span class="t">string</span> <span class="n">$printMode</span> = <span class="s">'unofficial'</span>,
+
+        <span class="k">public</span> <span class="t">bool</span>   <span class="n">$includeQR</span>    = <span class="nu">true</span>,
+        <span class="k">public</span> <span class="t">bool</span>   <span class="n">$includePhoto</span> = <span class="nu">false</span>,
+    ) {}
+}</pre>
+    </div>
+
+    <div id="dto-rv-res"></div>
+    <h4>Response DTOs — TypeScript (union discriminated on <code>resultType</code>)</h4>
+
+    <div class="code-wrap">
+      <div class="code-label"><span>src/types/results/resultView.ts</span><span class="lang">TypeScript</span></div>
+      <pre><span class="cm">// Union — component renders different layout based on resultType</span>
+<span class="kw">export type</span> <span class="t">CandidateResultResponse</span> =
+  <span class="op">|</span> <span class="t">CandidateResultDetailedResponse</span>
+  <span class="op">|</span> <span class="t">CandidateResultSummaryResponse</span>;
+
+<span class="kw">export interface</span> <span class="t">CandidateResultDetailedResponse</span> {
+  resultType<span class="op">:</span> <span class="s">'detailed'</span>;
+  caseNo<span class="op">:</span> <span class="t">string</span>;
+  postTitle<span class="op">:</span> <span class="t">string</span>;
+  examDate<span class="op">:</span> <span class="t">string</span>;
+  candidateName<span class="op">:</span> <span class="t">string</span>;
+  fatherHusbandName<span class="op">:</span> <span class="t">string</span>;
+  rollNo<span class="op">:</span> <span class="t">string</span>;
+  cnic<span class="op">:</span> <span class="t">string</span>;           <span class="cm">// masked or full per request</span>
+  photoUrl<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
+  subjects<span class="op">:</span> <span class="t">SubjectMarkResponse</span>[];
+  totalMaxMarks<span class="op">:</span> <span class="t">number</span>;
+  obtainedMarks<span class="op">:</span> <span class="t">number</span>;
+  percentage<span class="op">:</span> <span class="t">number</span>;
+  status<span class="op">:</span> <span class="s">'Pass'</span> <span class="op">|</span> <span class="s">'Fail'</span> <span class="op">|</span> <span class="s">'Absent'</span> <span class="op">|</span> <span class="s">'Withheld'</span>;
+  isPublished<span class="op">:</span> <span class="t">boolean</span>;
+  publishedAt<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
+  generatedAt<span class="op">:</span> <span class="t">string</span>;
+}
+
+<span class="kw">export interface</span> <span class="t">CandidateResultSummaryResponse</span> {
+  resultType<span class="op">:</span> <span class="s">'summary'</span>;
+  caseNo<span class="op">:</span> <span class="t">string</span>;
+  postTitle<span class="op">:</span> <span class="t">string</span>;
+  examDate<span class="op">:</span> <span class="t">string</span>;
+  candidateName<span class="op">:</span> <span class="t">string</span>;
+  fatherHusbandName<span class="op">:</span> <span class="t">string</span>;
+  rollNo<span class="op">:</span> <span class="t">string</span>;
+  cnic<span class="op">:</span> <span class="t">string</span>;
+  photoUrl<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
+  totalMaxMarks<span class="op">:</span> <span class="t">number</span>;
+  obtainedMarks<span class="op">:</span> <span class="t">number</span>;
+  status<span class="op">:</span> <span class="s">'Pass'</span> <span class="op">|</span> <span class="s">'Fail'</span> <span class="op">|</span> <span class="s">'Absent'</span> <span class="op">|</span> <span class="s">'Withheld'</span>;
+  isPublished<span class="op">:</span> <span class="t">boolean</span>;
+  publishedAt<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
+  generatedAt<span class="op">:</span> <span class="t">string</span>;
+}</pre>
+    </div>
+
+    <!-- ── 1.3 Award List ── -->
+    <div id="dto-award"></div>
+    <h3 class="sub-heading">③ Award List (Interview)</h3>
+
+    <div id="dto-award-req"></div>
+    <h4>Request DTOs — PHP</h4>
+
+    <div class="code-wrap">
+      <div class="code-label"><span>AwardEntryRequest — Part-A + Part-B marks</span><span class="lang">PHP 8.3</span></div>
+      <pre><span class="k">final readonly class</span> <span class="t">AwardEntryRequest</span>
+{
+    <span class="k">public function</span> <span class="n">__construct</span>(
+        <span class="at">#[NotBlank]</span> <span class="k">public</span> <span class="t">int</span>    <span class="n">$applicationId</span>,
+        <span class="at">#[NotBlank]</span> <span class="k">public</span> <span class="t">int</span>    <span class="n">$jobPostId</span>,
+        <span class="at">#[NotBlank, Length(max: 100)]</span>
+        <span class="k">public</span> <span class="t">string</span> <span class="n">$district</span>,
+        <span class="at">#[NotBlank, Date]</span> <span class="k">public</span> <span class="t">string</span> <span class="n">$interviewDate</span>,
+        <span class="at">#[NotBlank, Date]</span> <span class="k">public</span> <span class="t">string</span> <span class="n">$lastDocDate</span>,
+
+        <span class="cm">// ── Part-A: Educational Qualification (max 25 total) ──</span>
+        <span class="at">#[PositiveOrZero, LessThanOrEqual(25)]</span>
+        <span class="k">public</span> <span class="t">float</span> <span class="n">$marksMatric</span>       = <span class="nu">0</span>,
+        <span class="at">#[PositiveOrZero, LessThanOrEqual(25)]</span>
+        <span class="k">public</span> <span class="t">float</span> <span class="n">$marksIntermediate</span> = <span class="nu">0</span>,
+        <span class="at">#[PositiveOrZero, LessThanOrEqual(25)]</span>
+        <span class="k">public</span> <span class="t">float</span> <span class="n">$marksGraduation</span>   = <span class="nu">0</span>,
+        <span class="at">#[PositiveOrZero, LessThanOrEqual(25)]</span>
+        <span class="k">public</span> <span class="t">float</span> <span class="n">$marksMasters</span>      = <span class="nu">0</span>,
+        <span class="at">#[PositiveOrZero, LessThanOrEqual(25)]</span>
+        <span class="k">public</span> <span class="t">float</span> <span class="n">$marksAdditional</span>   = <span class="nu">0</span>,
+        <span class="at">#[PositiveOrZero, LessThanOrEqual(5)]</span>
+        <span class="k">public</span> <span class="t">float</span> <span class="n">$marksBuPosition</span>   = <span class="nu">0</span>,
+
+        <span class="cm">// ── Part-B: Interview Marks (max 30 total) ──</span>
+        <span class="at">#[PositiveOrZero, LessThanOrEqual(30)]</span>
+        <span class="k">public</span> <span class="t">float</span> <span class="n">$marksPakKashmir</span>   = <span class="nu">0</span>,
+        <span class="at">#[PositiveOrZero, LessThanOrEqual(30)]</span>
+        <span class="k">public</span> <span class="t">float</span> <span class="n">$marksIslamic</span>      = <span class="nu">0</span>,
+        <span class="at">#[PositiveOrZero, LessThanOrEqual(30)]</span>
+        <span class="k">public</span> <span class="t">float</span> <span class="n">$marksCurrentAff</span>   = <span class="nu">0</span>,
+
+        <span class="at">#[NotBlank, Choice(['selected','provisional','replacement','declined','absent','disqualified'])]</span>
+        <span class="k">public</span> <span class="t">string</span> <span class="n">$status</span> = <span class="s">'provisional'</span>,
+
+        <span class="k">public</span> <span class="t">?string</span> <span class="n">$remarks</span> = <span class="nu">null</span>,
+    ) {}
+}</pre>
+    </div>
+
+    <div id="dto-award-res"></div>
+    <h4>Response DTOs — TypeScript</h4>
+
+    <div class="code-wrap">
+      <div class="code-label"><span>src/types/results/awardList.ts</span><span class="lang">TypeScript</span></div>
+      <pre><span class="kw">export type</span> <span class="t">AwardStatus</span> =
+  <span class="op">|</span> <span class="s">'selected'</span> <span class="op">|</span> <span class="s">'provisional'</span> <span class="op">|</span> <span class="s">'replacement'</span>
+  <span class="op">|</span> <span class="s">'declined'</span> <span class="op">|</span> <span class="s">'absent'</span> <span class="op">|</span> <span class="s">'disqualified'</span>;
+
+<span class="kw">export interface</span> <span class="t">AwardRowResponse</span> {
+  id<span class="op">:</span> <span class="t">number</span>;
+  serialNo<span class="op">:</span> <span class="t">number</span>;
+  rollNo<span class="op">:</span> <span class="t">string</span>;
+  candidateName<span class="op">:</span> <span class="t">string</span>;
+  fatherHusbandName<span class="op">:</span> <span class="t">string</span>;
+  dob<span class="op">:</span> <span class="t">string</span>;                      <span class="cm">// dd-mm-yyyy</span>
+  <span class="cm">// Part-A</span>
+  marksMatric<span class="op">:</span> <span class="t">number</span>;  marksIntermediate<span class="op">:</span> <span class="t">number</span>;
+  marksGraduation<span class="op">:</span> <span class="t">number</span>;  marksMasters<span class="op">:</span> <span class="t">number</span>;
+  marksAdditional<span class="op">:</span> <span class="t">number</span>;  marksBuPosition<span class="op">:</span> <span class="t">number</span>;
+  partATotal<span class="op">:</span> <span class="t">number</span>;                <span class="cm">// computed, max 25</span>
+  <span class="cm">// Part-B</span>
+  marksPakKashmir<span class="op">:</span> <span class="t">number</span>;  marksIslamic<span class="op">:</span> <span class="t">number</span>;
+  marksCurrentAff<span class="op">:</span> <span class="t">number</span>;
+  partBTotal<span class="op">:</span> <span class="t">number</span>;                <span class="cm">// computed, max 30</span>
+  <span class="cm">// Final</span>
+  grandTotal<span class="op">:</span> <span class="t">number</span>;               <span class="cm">// computed, max 55</span>
+  meritRank<span class="op">:</span> <span class="t">number</span>;
+  status<span class="op">:</span> <span class="t">AwardStatus</span>;
+  replacedByRollNo<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
+  replacedOn<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
+  remarks<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
+  createdAt<span class="op">:</span> <span class="t">string</span>;  updatedAt<span class="op">:</span> <span class="t">string</span>;
+}
+
+<span class="kw">export interface</span> <span class="t">AwardListResponse</span> {
+  district<span class="op">:</span> <span class="t">string</span>;  postTitle<span class="op">:</span> <span class="t">string</span>;
+  department<span class="op">:</span> <span class="t">string</span>;  caseNo<span class="op">:</span> <span class="t">string</span>;
+  lastDocDate<span class="op">:</span> <span class="t">string</span>;  interviewDate<span class="op">:</span> <span class="t">string</span>;
+  candidates<span class="op">:</span> <span class="t">AwardRowResponse</span>[];
+  total<span class="op">:</span> <span class="t">number</span>;  page<span class="op">:</span> <span class="t">number</span>;  perPage<span class="op">:</span> <span class="t">number</span>;  lastPage<span class="op">:</span> <span class="t">number</span>;
+}</pre>
+    </div>
+
+    <!-- ── 1.4 Merit Rotation ── -->
+    <div id="dto-merit"></div>
+    <h3 class="sub-heading">④ Merit Rotation &amp; Replacement</h3>
+
+    <div class="code-wrap">
+      <div class="code-label"><span>AwardStatusChangeRequest + MeritReplacementRequest + Responses</span><span class="lang">PHP 8.3 + TypeScript</span></div>
+      <pre><span class="cm">// PHP — Request</span>
+<span class="k">final readonly class</span> <span class="t">AwardStatusChangeRequest</span>
+{
+    <span class="k">public function</span> <span class="n">__construct</span>(
+        <span class="at">#[NotBlank, Choice(['selected','provisional','replacement','declined','absent','disqualified'])]</span>
+        <span class="k">public</span> <span class="t">string</span> <span class="n">$newStatus</span>,
+
+        <span class="at">#[NotBlank, Length(min: 5, max: 500)]</span>
+        <span class="k">public</span> <span class="t">string</span> <span class="n">$reasonCode</span>,
+
+        <span class="k">public</span> <span class="t">?string</span> <span class="n">$notes</span> = <span class="nu">null</span>,
+    ) {}
+}
+
+<span class="k">final readonly class</span> <span class="t">MeritReplacementRequest</span>
+{
+    <span class="k">public function</span> <span class="n">__construct</span>(
+        <span class="k">public</span> <span class="t">?int</span>   <span class="n">$replacementAwardId</span> = <span class="nu">null</span>,   <span class="cm">// null = auto-pick next</span>
+
+        <span class="at">#[NotBlank, Choice(['OFFER_DECLINED','DOC_FAILED','NO_SHOW','DISQUALIFIED','OTHER'])]</span>
+        <span class="k">public</span> <span class="t">string</span> <span class="n">$reasonCode</span>,
+
+        <span class="at">#[Length(max: 500)]</span>
+        <span class="k">public</span> <span class="t">?string</span> <span class="n">$notes</span> = <span class="nu">null</span>,
+    ) {}
+}
+
+<span class="cm">// TypeScript — Response</span>
+<span class="kw">export interface</span> <span class="t">MeritAuditResponse</span> {
+  id<span class="op">:</span> <span class="t">number</span>;  awardId<span class="op">:</span> <span class="t">number</span>;
+  action<span class="op">:</span> <span class="s">'status_change'</span> <span class="op">|</span> <span class="s">'rank_change'</span> <span class="op">|</span> <span class="s">'replacement'</span>;
+  reasonCode<span class="op">:</span> <span class="t">string</span>;
+  oldRank<span class="op">:</span> <span class="t">number</span> <span class="op">|</span> <span class="t">null</span>;  newRank<span class="op">:</span> <span class="t">number</span> <span class="op">|</span> <span class="t">null</span>;
+  oldStatus<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;  newStatus<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
+  notes<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
+  performedBy<span class="op">:</span> <span class="t">UserSummary</span>;  performedAt<span class="op">:</span> <span class="t">string</span>;
+}
+
+<span class="kw">export interface</span> <span class="t">MeritReplacementResponse</span> {
+  replacedCandidate<span class="op">:</span> <span class="t">AwardRowResponse</span>;   <span class="cm">// updated status</span>
+  promotedCandidate<span class="op">:</span> <span class="t">AwardRowResponse</span>;   <span class="cm">// now selected/replacement</span>
+  auditEntry<span class="op">:</span> <span class="t">MeritAuditResponse</span>;
+}</pre>
+    </div>
+
+    <!-- ── 1.5 Publication ── -->
+    <div id="dto-publish"></div>
+    <h3 class="sub-heading">⑤ Result Publication</h3>
+
+    <div class="code-wrap">
+      <div class="code-label"><span>ResultPublishRequest + ResultPublicationResponse</span><span class="lang">PHP 8.3 + TypeScript</span></div>
+      <pre><span class="cm">// PHP — Request</span>
+<span class="k">final readonly class</span> <span class="t">ResultPublishRequest</span>
+{
+    <span class="k">public function</span> <span class="n">__construct</span>(
+        <span class="at">#[NotBlank]</span>
+        <span class="k">public</span> <span class="t">int</span>    <span class="n">$jobPostId</span>,
+
+        <span class="at">#[NotBlank, Choice(['written_test', 'interview', 'final_merit'])]</span>
+        <span class="k">public</span> <span class="t">string</span> <span class="n">$pubType</span>,
+
+        <span class="k">public</span> <span class="t">?string</span> <span class="n">$gazetteRef</span>       = <span class="nu">null</span>,
+        <span class="k">public</span> <span class="t">bool</span>   <span class="n">$notifyCandidates</span> = <span class="nu">false</span>,
+    ) {}
+}
+
+<span class="cm">// TypeScript — Response</span>
+<span class="kw">export type</span> <span class="t">PublicationType</span> = <span class="s">'written_test'</span> <span class="op">|</span> <span class="s">'interview'</span> <span class="op">|</span> <span class="s">'final_merit'</span>;
+<span class="kw">export type</span> <span class="t">PublicationStatus</span> = <span class="s">'draft'</span> <span class="op">|</span> <span class="s">'published'</span> <span class="op">|</span> <span class="s">'withdrawn'</span>;
+
+<span class="kw">export interface</span> <span class="t">ResultPublicationResponse</span> {
+  id<span class="op">:</span> <span class="t">number</span>;  jobPostId<span class="op">:</span> <span class="t">number</span>;
+  pubType<span class="op">:</span> <span class="t">PublicationType</span>;
+  status<span class="op">:</span> <span class="t">PublicationStatus</span>;
+  gazetteRef<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
+  publishedBy<span class="op">:</span> <span class="t">UserSummary</span> <span class="op">|</span> <span class="t">null</span>;  publishedAt<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
+  createdAt<span class="op">:</span> <span class="t">string</span>;
+  notificationsSent<span class="op">:</span> <span class="t">number</span> <span class="op">|</span> <span class="t">null</span>;
+  notificationsFailed<span class="op">:</span> <span class="t">number</span> <span class="op">|</span> <span class="t">null</span>;
+}</pre>
+    </div>
+
+    <!-- ── Shared Types ── -->
+    <div id="dto-shared"></div>
+    <h3 class="sub-heading">Shared Types</h3>
+
+    <div class="code-wrap">
+      <div class="code-label"><span>src/types/shared.ts</span><span class="lang">TypeScript</span></div>
+      <pre><span class="kw">export interface</span> <span class="t">UserSummary</span> {
+  id<span class="op">:</span> <span class="t">number</span>;
+  name<span class="op">:</span> <span class="t">string</span>;
+  role<span class="op">:</span> <span class="t">string</span>;
+}
+
+<span class="kw">export interface</span> <span class="t">PaginatedResponse</span>&lt;<span class="t">T</span>&gt; {
+  data<span class="op">:</span> <span class="t">T</span>[];
+  total<span class="op">:</span> <span class="t">number</span>;  page<span class="op">:</span> <span class="t">number</span>;  perPage<span class="op">:</span> <span class="t">number</span>;  lastPage<span class="op">:</span> <span class="t">number</span>;
+}
+
+<span class="kw">export interface</span> <span class="t">ApiError</span> {
+  message<span class="op">:</span> <span class="t">string</span>;
+  errors<span class="op">?:</span> <span class="t">Record</span>&lt;<span class="t">string</span>, <span class="t">string</span>[]&gt;;
+  code<span class="op">?:</span> <span class="t">string</span>;
+}</pre>
+    </div>
+  </section>
+
+  <hr/>
+
+  <!-- ══════════════════════════════════════════════
+       SECTION 2 — USER JOURNEYS
+  ══════════════════════════════════════════════ -->
+  <section class="section-uj">
+    <h2 class="section-heading" id="user-journeys">
+      <span class="section-num" style="background:var(--green)">2</span>
+      User Journeys
+    </h2>
+
+    <!-- Actors table -->
+    <h3 class="sub-heading">Actors</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Actor</th><th>Role Description</th></tr></thead>
+        <tbody>
+          <tr><td>Data Entry Officer</td><td>PSC staff responsible for keying in exam results post-test</td></tr>
+          <tr><td>Results Admin</td><td>Senior PSC staff who reviews, corrects, and manages result records</td></tr>
+          <tr><td>Interview Secretary</td><td>Staff managing the interview panel's award list</td></tr>
+          <tr><td>Senior Admin</td><td>Decision-maker who authorises merit rotations and replacements</td></tr>
+          <tr><td>Publication Officer</td><td>Staff who controls when results go live on the portal</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Journey 1 -->
+    <div id="uj1" class="journey-box">
+      <div class="journey-header">
+        <div class="journey-num">Journey 2.1</div>
+        <div class="journey-title">Data Entry Officer — Entering Test Marks</div>
+        <div class="journey-sub">Trigger: Exam conducted. Mark sheets available. Goal: Record marks for all eligible candidates.</div>
+      </div>
+      <div class="journey-body">
+        <div class="journey-meta">
+          <div class="jm-item"><div class="jm-label">Actor</div><div class="jm-val">Data Entry Officer</div></div>
+          <div class="jm-item"><div class="jm-label">Trigger</div><div class="jm-val">Mark sheets received post-exam</div></div>
+          <div class="jm-item"><div class="jm-label">Route</div><div class="jm-val">/results/mark-entry/:jobPostId</div></div>
+          <div class="jm-item"><div class="jm-label">Ends when</div><div class="jm-val">All records saved; status set to "Ready for Review"</div></div>
+        </div>
+
+        <div class="step-section">
+          <h4>Step 1 — Navigate to Mark Entry</h4>
+          <p>Officer selects Job Post (Case No. + Post Title dropdown, filtered to <code>result_pending</code> state) and Exam Date. System auto-loads <code>result_type</code> and the subject list from <code>exam_subject_templates</code>.</p>
+
+          <h4>Step 2 — Choose input method</h4>
+          <p>Two tabs: <strong>Manual Entry</strong> and <strong>CSV Import</strong>. Manual renders an inline-editable table per candidate. CSV provides a template download, drag-drop upload, dry-run preview, then commit.</p>
+
+          <h4>Step 3 — Enter marks</h4>
+          <p>For <em>detailed</em>: one column per subject. For <em>summary</em>: single "Obtained Marks" column. Marks exceeding the subject max turn red on blur. Totals and percentage compute live. Auto-save fires every 10 s (debounced PUT).</p>
+
+          <h4>Step 4 — Handle absent / withheld</h4>
+          <p>Status dropdown on each row: <code>absent</code> or <code>withheld</code> bypasses mark columns entirely.</p>
+
+          <h4>Step 5 — Save &amp; hand off</h4>
+          <p>Click <strong>Save All</strong>. Toast: "485 saved, 3 errors." Officer fixes errors, re-saves, then toggles "Ready for Review" — triggering an internal notification to Results Admin.</p>
+        </div>
+
+        <div class="alt-path">
+          <strong>CSV path (alt Step 2):</strong> Download template → populate offline → upload → dry-run preview (green valid / red errors per cell) → fix → Confirm Import → tally shown.
+        </div>
+      </div>
+    </div>
+
+    <!-- Journey 2 -->
+    <div id="uj2" class="journey-box">
+      <div class="journey-header">
+        <div class="journey-num">Journey 2.2</div>
+        <div class="journey-title">Results Admin — View &amp; Print a Candidate Result</div>
+        <div class="journey-sub">Trigger: Candidate or department requests result sheet, or admin doing QA before publication.</div>
+      </div>
+      <div class="journey-body">
+        <div class="journey-meta">
+          <div class="jm-item"><div class="jm-label">Actor</div><div class="jm-val">Results Admin</div></div>
+          <div class="jm-item"><div class="jm-label">Route</div><div class="jm-val">/results/view/:jobPostId</div></div>
+          <div class="jm-item"><div class="jm-label">PDF file name</div><div class="jm-val">Result_[CaseNo]_[RollNo]_[YYYYMMDDhhmm].pdf</div></div>
+          <div class="jm-item"><div class="jm-label">Security</div><div class="jm-val">CNIC masked by default; unmask is audit-logged</div></div>
+        </div>
+        <div class="step-section">
+          <h4>Step 1 — Search</h4>
+          <p>Select Job Post + Exam Date. Enter Roll No. or CNIC. Click <strong>Search</strong>.</p>
+          <h4>Step 2 — Review layout</h4>
+          <p><em>Detailed:</em> candidate info block + subject table + total + Pass/Fail badge. <em>Summary:</em> info block + single obtained-marks row + badge. CNIC masked (<code>8910X-XXXXX75-9</code>).</p>
+          <h4>Step 3 — Download PDF</h4>
+          <p>Click <strong>Download PDF</strong>. Modal: "Official or Unofficial?" Unofficial = watermarked. Official = role-gated (<code>can_print_official</code>). PDF streamed with QR code. Audit log: actor, timestamp, mode.</p>
+          <h4>Step 4 — Edit if error found</h4>
+          <p>Click <strong>Edit Marks</strong>. Inline form opens. Correct value + mandatory Edit Reason → save. Audit trail: old → new, editor, timestamp.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Journey 3 -->
+    <div id="uj3" class="journey-box">
+      <div class="journey-header">
+        <div class="journey-num">Journey 2.3</div>
+        <div class="journey-title">Interview Secretary — Building the Award List</div>
+        <div class="journey-sub">Trigger: Written test finalised. Pre-selected candidates called for interview.</div>
+      </div>
+      <div class="journey-body">
+        <div class="journey-meta">
+          <div class="jm-item"><div class="jm-label">Actor</div><div class="jm-val">Interview Secretary</div></div>
+          <div class="jm-item"><div class="jm-label">Route</div><div class="jm-val">/results/awards/:jobPostId</div></div>
+          <div class="jm-item"><div class="jm-label">Max marks</div><div class="jm-val">Part-A: 25 · Part-B: 30 · Grand Total: 55</div></div>
+          <div class="jm-item"><div class="jm-label">Export</div><div class="jm-val">PDF (A4 portrait) + Excel/CSV</div></div>
+        </div>
+        <div class="step-section">
+          <h4>Step 1 — Open / create list</h4>
+          <p>Select Job Post, District, Interview Date. Click <strong>Load / Create List</strong>. Context header auto-fills: Post Title, Department, Case No., Last Doc Date, Interview Date.</p>
+          <h4>Step 2 — Populate Part-A</h4>
+          <p>Fill Matric, Intermediate, Graduation, Masters, Additional Education, B/U Position per candidate. <strong>Total (Part-A)</strong> computes live (cap 25). Tooltip explains cap if exceeded.</p>
+          <h4>Step 3 — Enter interview marks (Part-B)</h4>
+          <p>After each interview: Pak/Kashmir Studies, Islamic Studies, Current Affairs. <strong>Total (Part-B)</strong> (cap 30) and <strong>Grand Total</strong> (cap 55) auto-update.</p>
+          <h4>Step 4 — Auto-rank</h4>
+          <p>Click <strong>Auto-Rank by Grand Total</strong>. System sorts descending; ties broken by Part-A total then DOB (older preferred). Manual overrides require justification note.</p>
+          <h4>Step 5 — Set statuses &amp; export</h4>
+          <p>Top N rows → <em>Selected</em>. Rest → <em>Provisional</em>. Export PDF for chairperson signature, CSV for archive.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Journey 4 -->
+    <div id="uj4" class="journey-box">
+      <div class="journey-header">
+        <div class="journey-num">Journey 2.4</div>
+        <div class="journey-title">Senior Admin — Merit Rotation / Replacement</div>
+        <div class="journey-sub">Trigger: Selected candidate declines, fails verification, or does not join.</div>
+      </div>
+      <div class="journey-body">
+        <div class="journey-meta">
+          <div class="jm-item"><div class="jm-label">Actor</div><div class="jm-val">Senior Admin</div></div>
+          <div class="jm-item"><div class="jm-label">Route</div><div class="jm-val">/results/merit/:jobPostId</div></div>
+          <div class="jm-item"><div class="jm-label">API calls</div><div class="jm-val">PUT /awards/{id}/status → POST /awards/{id}/replace</div></div>
+          <div class="jm-item"><div class="jm-label">Audit</div><div class="jm-val">2 merit_audit_log entries per replacement</div></div>
+        </div>
+        <div class="step-section">
+          <h4>Step 1 — Identify the case</h4>
+          <p>Notification (email/alert) arrives. Admin opens Award List for the job post.</p>
+          <h4>Step 2 — Update declining candidate's status</h4>
+          <p>Click <strong>Change Status</strong> on the row. Modal: New Status dropdown + Reason Code (OFFER_DECLINED) + optional Notes. Confirm → PUT fires → audit log written.</p>
+          <h4>Step 3 — Trigger replacement</h4>
+          <p><strong>Promote Next Candidate</strong> button appears. Preview panel shows: outgoing candidate (rank, grand total, new status) → incoming candidate (rank, grand total, new status). Admin confirms → POST fires → system atomically updates both rows + writes 2 audit entries.</p>
+          <h4>Step 4 — Review &amp; export</h4>
+          <p>Outgoing row: read-only, status = Declined, Replacement Info = "Replaced by Adv-1063 on 15-03-2025". Incoming row: highlighted. Export updated award list for the record.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Journey 5 -->
+    <div id="uj5" class="journey-box">
+      <div class="journey-header">
+        <div class="journey-num">Journey 2.5</div>
+        <div class="journey-title">Publication Officer — Publishing Results</div>
+        <div class="journey-sub">Trigger: Chairperson gives approval for public release.</div>
+      </div>
+      <div class="journey-body">
+        <div class="journey-meta">
+          <div class="jm-item"><div class="jm-label">Actor</div><div class="jm-val">Publication Officer</div></div>
+          <div class="jm-item"><div class="jm-label">Route</div><div class="jm-val">/results/publish/:jobPostId</div></div>
+          <div class="jm-item"><div class="jm-label">Transition</div><div class="jm-val">draft → published → (withdrawn → draft)</div></div>
+          <div class="jm-item"><div class="jm-label">Side effect</div><div class="jm-val">SMS/Email notification queue dispatched</div></div>
+        </div>
+        <div class="step-section">
+          <h4>Step 1 — Pre-publication checklist</h4>
+          <p>System auto-runs: all candidates have marks ✅ · no withheld without remarks ✅ · award list approved ✅ · gazette ref missing ⚠️ (non-blocking warning).</p>
+          <h4>Step 2 — Enter gazette ref &amp; configure notifications</h4>
+          <p>Optional gazette number. Toggle: "Notify Candidates via SMS/Email" — system shows estimated count.</p>
+          <h4>Step 3 — Publish</h4>
+          <p>Click <strong>Publish Results</strong>. Final confirmation dialog (irreversible without Withdraw action). Confirm → atomic transaction: <code>is_published = true</code> on all rows + <code>result_publications</code> record created + notification jobs queued.</p>
+          <h4>Step 4 — Monitor notifications</h4>
+          <p>Delivery stats update live: "Sent: 320/485. Failed: 5." Failed entries retried individually from the Notifications module.</p>
+          <h4>Step 5 — Withdraw (if needed)</h4>
+          <p>Error found post-publish → <strong>Withdraw</strong> → mandatory reason → <code>status = withdrawn</code>, <code>is_published = false</code>, portal hides results. Re-publish after correction.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr/>
+
+  <!-- ══════════════════════════════════════════════
+       SECTION 3 — USE CASES
+  ══════════════════════════════════════════════ -->
+  <section class="section-uc">
+    <h2 class="section-heading" id="use-cases">
+      <span class="section-num" style="background:var(--purple)">3</span>
+      Use Cases
+    </h2>
+
+    <!-- Register -->
+    <div id="uc-register"></div>
+    <h3 class="sub-heading">Use Case Register</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Name</th><th>Actor</th><th>Priority</th></tr></thead>
+        <tbody>
+          <tr><td>UC-R01</td><td>Enter Written Test Marks (Manual)</td><td><span class="actor-chip">Data Entry Officer</span></td><td><span class="badge badge-p0">P0</span></td></tr>
+          <tr><td>UC-R02</td><td>Bulk Import Marks via CSV</td><td><span class="actor-chip">Data Entry Officer</span></td><td><span class="badge badge-p0">P0</span></td></tr>
+          <tr><td>UC-R03</td><td>View &amp; Print Candidate Result Sheet</td><td><span class="actor-chip">Results Admin</span></td><td><span class="badge badge-p0">P0</span></td></tr>
+          <tr><td>UC-R04</td><td>Generate Award List for Interview</td><td><span class="actor-chip">Interview Secretary</span></td><td><span class="badge badge-p0">P0</span></td></tr>
+          <tr><td>UC-R05</td><td>Enter &amp; Edit Interview Marks (Part-A &amp; B)</td><td><span class="actor-chip">Interview Secretary</span></td><td><span class="badge badge-p0">P0</span></td></tr>
+          <tr><td>UC-R06</td><td>Update Candidate Status in Merit List</td><td><span class="actor-chip">Senior Admin</span></td><td><span class="badge badge-p1">P1</span></td></tr>
+          <tr><td>UC-R07</td><td>Trigger Merit Rotation (Replacement)</td><td><span class="actor-chip">Senior Admin</span></td><td><span class="badge badge-p1">P1</span></td></tr>
+          <tr><td>UC-R08</td><td>Publish / Withdraw Results</td><td><span class="actor-chip">Publication Officer</span></td><td><span class="badge badge-p0">P0</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- UC-R01 -->
+    <div id="uc-r01" class="uc-box">
+      <div class="uc-header">
+        <span class="uc-id">UC-R01</span>
+        <span class="uc-title">Enter Written Test Marks (Manual)</span>
+        <span class="uc-actor">Data Entry Officer</span>
+      </div>
+      <div class="uc-body">
+        <div class="uc-meta">
+          <div class="uc-meta-item"><div class="uc-meta-label">Goal</div><div class="uc-meta-val">Record exam marks for all eligible candidates for a given advertisement and exam date.</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Trigger</div><div class="uc-meta-val">Actor navigates to Results → Mark Entry and selects a job post.</div></div>
+        </div>
+
+        <div class="pre-post">
+          <div class="pp-box pp-pre">
+            <div class="pp-label">Preconditions</div>
+            <ul>
+              <li>Job post status is <code>result_pending</code></li>
+              <li>Roll number assignment completed</li>
+              <li>Mark sheets available</li>
+              <li>Actor has role <code>data_entry_officer</code> or higher</li>
+            </ul>
+          </div>
+          <div class="pp-box pp-post">
+            <div class="pp-label">Postconditions</div>
+            <ul>
+              <li><code>exam_results</code> rows exist for all submitted candidates</li>
+              <li><code>result_subjects</code> rows exist for detailed-type results</li>
+              <li>Audit trail initialised (user, timestamp)</li>
+            </ul>
+          </div>
+        </div>
+
+        <h4>Main Flow</h4>
+        <ol class="flow-list">
+          <li><span class="step-num">1</span><span>Actor selects Job Post (filtered to <code>result_pending</code> state) from dropdown.</span></li>
+          <li><span class="step-num">2</span><span>Actor selects Exam Date.</span></li>
+          <li><span class="step-num">3</span><span>System loads all eligible candidates; detects <code>result_type</code>; renders appropriate columns.</span></li>
+          <li><span class="step-num">4</span><span>Actor enters marks per subject (detailed) or total obtained marks (summary).</span></li>
+          <li><span class="step-num">5</span><span>System validates each cell on blur — value ≤ subject max, non-negative, numeric.</span></li>
+          <li><span class="step-num">6</span><span>System computes and displays running total and percentage per row live.</span></li>
+          <li><span class="step-num">7</span><span>Actor sets status to <code>absent</code> or <code>withheld</code> where applicable.</span></li>
+          <li><span class="step-num">8</span><span>Actor clicks <strong>Save All</strong>. System persists valid rows, returns saved count + skipped count + error details.</span></li>
+          <li><span class="step-num">9</span><span>Actor fixes highlighted errors and re-saves.</span></li>
+          <li><span class="step-num">10</span><span>Actor sets status to "Ready for Review" — internal notification dispatched to Results Admin.</span></li>
+        </ol>
+
+        <h4 style="margin-top:16px">Alternate Flows</h4>
+        <ul class="alt-list">
+          <li><span class="alt-tag">A1</span><span><strong>Marks exceed subject max (step 5):</strong> Cell highlights red. "Exceeds maximum of {N}." Save blocked for that row only.</span></li>
+          <li><span class="alt-tag">A2</span><span><strong>Candidate not in eligible list (step 3):</strong> Cannot add ad-hoc rows — candidate must appear via Roll Number module first.</span></li>
+          <li><span class="alt-tag">A3</span><span><strong>Duplicate entry detected (step 8):</strong> Conflict warning — "Record already exists for Roll No. {X}. Overwrite?" Confirm required; writes update audit entry instead of create.</span></li>
+          <li><span class="alt-tag">A4</span><span><strong>Session timeout (step 5–9):</strong> Auto-save (debounced 10 s) preserves entered data. Actor resumes from last auto-saved state on re-login.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- UC-R02 -->
+    <div id="uc-r02" class="uc-box">
+      <div class="uc-header">
+        <span class="uc-id">UC-R02</span>
+        <span class="uc-title">Bulk Import Marks via CSV</span>
+        <span class="uc-actor">Data Entry Officer</span>
+      </div>
+      <div class="uc-body">
+        <div class="uc-meta">
+          <div class="uc-meta-item"><div class="uc-meta-label">Goal</div><div class="uc-meta-val">Upload a CSV file to import marks for multiple candidates in one operation.</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Trigger</div><div class="uc-meta-val">Actor selects the CSV Import tab in the Mark Entry screen.</div></div>
+        </div>
+        <div class="pre-post">
+          <div class="pp-box pp-pre"><div class="pp-label">Preconditions</div><ul><li>Same as UC-R01</li><li>Digitised mark data available as spreadsheet</li></ul></div>
+          <div class="pp-box pp-post"><div class="pp-label">Postconditions</div><ul><li>Same as UC-R01</li><li><code>result_import_batch_id</code> stored on each row for traceability</li></ul></div>
+        </div>
+        <h4>Main Flow</h4>
+        <ol class="flow-list">
+          <li><span class="step-num">1</span><span>Actor downloads system-generated CSV template (headers match subject list for this job post).</span></li>
+          <li><span class="step-num">2</span><span>Actor populates template offline and uploads via drag-drop or file picker.</span></li>
+          <li><span class="step-num">3</span><span>System runs <strong>dry-run validation</strong>: Roll No. vs eligible list, marks vs subject max, CNIC cross-validation, mandatory column checks.</span></li>
+          <li><span class="step-num">4</span><span>System renders preview table: valid rows (green), error rows (red with field-level messages).</span></li>
+          <li><span class="step-num">5</span><span>Actor reviews, corrects CSV if needed, and re-uploads — or proceeds with valid rows only.</span></li>
+          <li><span class="step-num">6</span><span>Actor clicks <strong>Confirm Import</strong>. System persists valid rows; returns: total processed, imported, skipped (with reasons).</span></li>
+        </ol>
+        <h4 style="margin-top:16px">Alternate Flows</h4>
+        <ul class="alt-list">
+          <li><span class="alt-tag">A1</span><span><strong>CSV format mismatch (step 3):</strong> Immediate reject. "Invalid template format. Please use the downloaded template."</span></li>
+          <li><span class="alt-tag">A2</span><span><strong>All rows have errors (step 4):</strong> "0 valid rows found. Import blocked." Actor must fix and re-upload.</span></li>
+          <li><span class="alt-tag">A3</span><span><strong>Partial import (step 5):</strong> Actor elects to import valid rows and skip errors. Skipped rows recorded in batch log.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- UC-R03 -->
+    <div id="uc-r03" class="uc-box">
+      <div class="uc-header">
+        <span class="uc-id">UC-R03</span>
+        <span class="uc-title">View &amp; Print Candidate Result Sheet</span>
+        <span class="uc-actor">Results Admin</span>
+      </div>
+      <div class="uc-body">
+        <div class="uc-meta">
+          <div class="uc-meta-item"><div class="uc-meta-label">Goal</div><div class="uc-meta-val">Retrieve a candidate's result and produce an official or unofficial printed PDF.</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">PDF spec</div><div class="uc-meta-val">A4 portrait · 12pt body · QR code · watermark on unofficial · file: Result_[CaseNo]_[RollNo]_[YYYYMMDDhhmm].pdf</div></div>
+        </div>
+        <div class="pre-post">
+          <div class="pp-box pp-pre"><div class="pp-label">Preconditions</div><ul><li>Marks entered (UC-R01 or UC-R02 complete)</li><li>Actor has role <code>results_admin</code> or higher</li></ul></div>
+          <div class="pp-box pp-post"><div class="pp-label">Postconditions</div><ul><li>PDF downloaded to actor's device</li><li>Audit entry for view + print events</li></ul></div>
+        </div>
+        <h4>Main Flow</h4>
+        <ol class="flow-list">
+          <li><span class="step-num">1</span><span>Actor selects Job Post and Exam Date.</span></li>
+          <li><span class="step-num">2</span><span>Actor enters Roll No. or CNIC → clicks <strong>Search</strong>.</span></li>
+          <li><span class="step-num">3</span><span>System retrieves record; determines <code>result_type</code>; renders appropriate layout. CNIC masked by default.</span></li>
+          <li><span class="step-num">4</span><span>Actor reviews result; clicks <strong>Download PDF</strong>.</span></li>
+          <li><span class="step-num">5</span><span>Modal: "Official or Unofficial?" System enforces <code>can_print_official</code> role gate for Official mode.</span></li>
+          <li><span class="step-num">6</span><span>System generates PDF (AJK PSC logo, candidate info, marks, QR code) and streams to browser. Audit logged.</span></li>
+        </ol>
+        <h4 style="margin-top:16px">Alternate Flows</h4>
+        <ul class="alt-list">
+          <li><span class="alt-tag">A1</span><span><strong>Result not found (step 3):</strong> "No result record found for this Roll No. / CNIC." No PDF generated.</span></li>
+          <li><span class="alt-tag">A2</span><span><strong>Result unpublished + insufficient role (step 3):</strong> "Result not yet published." Data Entry Officer blocked; Results Admin and above can still view draft results.</span></li>
+          <li><span class="alt-tag">A3</span><span><strong>Official print without permission (step 5):</strong> "You do not have permission to print in Official mode." Unofficial option remains available.</span></li>
+          <li><span class="alt-tag">A4</span><span><strong>Unmask CNIC (step 3):</strong> Actor clicks "Unmask CNIC." Role check (<code>can_unmask_cnic</code>). If granted, CNIC shown full + audit entry written.</span></li>
+          <li><span class="alt-tag">A5</span><span><strong>Error found in result (step 4):</strong> Click <strong>Edit Marks</strong>. Inline form → correct value + mandatory Edit Reason → save. Audit trail: old→new, editor, timestamp.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- UC-R04 -->
+    <div id="uc-r04" class="uc-box">
+      <div class="uc-header">
+        <span class="uc-id">UC-R04</span>
+        <span class="uc-title">Generate Award List for Interview</span>
+        <span class="uc-actor">Interview Secretary</span>
+      </div>
+      <div class="uc-body">
+        <div class="uc-meta">
+          <div class="uc-meta-item"><div class="uc-meta-label">Goal</div><div class="uc-meta-val">Create the official interview award list for a specific post and district.</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Scoring</div><div class="uc-meta-val">Part-A max 25 · Part-B max 30 · Grand Total max 55</div></div>
+        </div>
+        <div class="pre-post">
+          <div class="pp-box pp-pre"><div class="pp-label">Preconditions</div><ul><li>Written test results finalised and published</li><li>Pre-selected candidates identified (eligible status)</li><li>Actor has role <code>interview_secretary</code> or higher</li></ul></div>
+          <div class="pp-box pp-post"><div class="pp-label">Postconditions</div><ul><li><code>interview_awards</code> rows exist with computed totals</li><li>Merit ranks assigned</li><li>Award list exportable in official format</li></ul></div>
+        </div>
+        <h4>Main Flow</h4>
+        <ol class="flow-list">
+          <li><span class="step-num">1</span><span>Actor selects Job Post, District, Interview Date, Last Doc Date → <strong>Create Award List</strong>.</span></li>
+          <li><span class="step-num">2</span><span>System creates draft; populates rows from eligible applications (Roll No, Name, Father Name, DOB auto-filled).</span></li>
+          <li><span class="step-num">3</span><span>Actor fills Part-A columns. <code>Total (Part-A)</code> computes live, capped at 25.</span></li>
+          <li><span class="step-num">4</span><span>After interviews, actor fills Part-B columns. <code>Total (Part-B)</code> (cap 30) and <code>Grand Total</code> (cap 55) auto-update.</span></li>
+          <li><span class="step-num">5</span><span>Actor clicks <strong>Auto-Rank</strong>. System sorts descending by Grand Total; tie-breaking: Part-A ↓, then DOB ↑ (older preferred).</span></li>
+          <li><span class="step-num">6</span><span>Actor sets Status per candidate (Selected / Provisional) and exports PDF + CSV.</span></li>
+        </ol>
+        <h4 style="margin-top:16px">Alternate Flows</h4>
+        <ul class="alt-list">
+          <li><span class="alt-tag">A1</span><span><strong>List already exists (step 1):</strong> System opens existing draft. Warning: "You are editing an existing draft."</span></li>
+          <li><span class="alt-tag">A2</span><span><strong>Part-A total exceeds 25 (step 3):</strong> Display capped at 25; tooltip explains. Individual sub-marks preserved as entered.</span></li>
+          <li><span class="alt-tag">A3</span><span><strong>Manual rank override (step 5):</strong> Right-click rank cell → override → justification note required → audit-logged. Auto-rank does not overwrite manual ranks unless full re-rank is explicitly requested.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- UC-R05 -->
+    <div id="uc-r05" class="uc-box">
+      <div class="uc-header">
+        <span class="uc-id">UC-R05</span>
+        <span class="uc-title">Enter &amp; Edit Interview Marks (Part-A &amp; Part-B)</span>
+        <span class="uc-actor">Interview Secretary</span>
+      </div>
+      <div class="uc-body">
+        <div class="uc-meta">
+          <div class="uc-meta-item"><div class="uc-meta-label">Goal</div><div class="uc-meta-val">Input and correct educational qualification and interview panel marks.</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Save strategy</div><div class="uc-meta-val">Debounced auto-PATCH per row; optimistic locking via ETag/version counter</div></div>
+        </div>
+        <h4>Main Flow</h4>
+        <ol class="flow-list">
+          <li><span class="step-num">1</span><span>Actor opens the award list for the relevant post.</span></li>
+          <li><span class="step-num">2</span><span>Actor clicks a Part-A or Part-B cell — inline editing enabled.</span></li>
+          <li><span class="step-num">3</span><span>Actor enters mark value. System validates: non-negative, ≤ column cap, numeric.</span></li>
+          <li><span class="step-num">4</span><span>Grand Total recomputes client-side (matches server generated columns as sanity check).</span></li>
+          <li><span class="step-num">5</span><span>Actor navigates to next cell (Tab / click). System auto-saves via debounced PATCH.</span></li>
+        </ol>
+        <h4 style="margin-top:16px">Alternate Flows</h4>
+        <ul class="alt-list">
+          <li><span class="alt-tag">A1</span><span><strong>Edit on published list (step 2):</strong> Warning: "This list has been published. Editing will require Senior Admin re-approval." Proceeding sets list back to <code>draft_amendment</code> + notifies Senior Admin.</span></li>
+          <li><span class="alt-tag">A2</span><span><strong>Edit conflict — two simultaneous users (step 5):</strong> Version mismatch → HTTP 409. "This record was updated by another user. Please refresh." Actor refreshes and re-applies change.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- UC-R06 -->
+    <div id="uc-r06" class="uc-box">
+      <div class="uc-header">
+        <span class="uc-id">UC-R06</span>
+        <span class="uc-title">Update Candidate Status in Merit List</span>
+        <span class="uc-actor">Senior Admin</span>
+      </div>
+      <div class="uc-body">
+        <div class="uc-meta">
+          <div class="uc-meta-item"><div class="uc-meta-label">Goal</div><div class="uc-meta-val">Change a candidate's status with a mandatory audit trail.</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Reason codes</div><div class="uc-meta-val">OFFER_DECLINED · DOC_FAILED · NO_SHOW · DISQUALIFIED · OTHER</div></div>
+        </div>
+        <div class="pre-post">
+          <div class="pp-box pp-pre"><div class="pp-label">Preconditions</div><ul><li>Award list with ≥1 candidate in <code>selected</code> or <code>provisional</code> status</li><li>Actor has role <code>senior_admin</code> or higher</li></ul></div>
+          <div class="pp-box pp-post"><div class="pp-label">Postconditions</div><ul><li>Candidate status updated in <code>interview_awards</code></li><li><code>merit_audit_log</code> entry: old status, new status, reason, actor, timestamp</li></ul></div>
+        </div>
+        <h4>Main Flow</h4>
+        <ol class="flow-list">
+          <li><span class="step-num">1</span><span>Actor navigates to Results → Merit Management, selects Job Post.</span></li>
+          <li><span class="step-num">2</span><span>Actor locates candidate row → clicks <strong>Change Status</strong>.</span></li>
+          <li><span class="step-num">3</span><span>Modal: New Status (filtered valid transitions) + Reason Code + optional Notes.</span></li>
+          <li><span class="step-num">4</span><span>Actor confirms → PUT fires → <code>interview_awards.status</code> updated + <code>merit_audit_log</code> entry written.</span></li>
+          <li><span class="step-num">5</span><span>System checks if replacement should be triggered (was candidate <code>selected</code>?). Suggests: "Would you like to promote the next candidate?"</span></li>
+        </ol>
+        <h4 style="margin-top:16px">Alternate Flows</h4>
+        <ul class="alt-list">
+          <li><span class="alt-tag">A1</span><span><strong>No valid next status (step 3):</strong> Candidate already <code>disqualified</code> — dropdown disabled. "No further status changes allowed."</span></li>
+          <li><span class="alt-tag">A2</span><span><strong>Actor skips replacement prompt (step 5):</strong> Replacement can be triggered later via UC-R07.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- UC-R07 -->
+    <div id="uc-r07" class="uc-box">
+      <div class="uc-header">
+        <span class="uc-id">UC-R07</span>
+        <span class="uc-title">Trigger Merit Rotation (Replacement)</span>
+        <span class="uc-actor">Senior Admin</span>
+      </div>
+      <div class="uc-body">
+        <div class="uc-meta">
+          <div class="uc-meta-item"><div class="uc-meta-label">Goal</div><div class="uc-meta-val">Promote next-in-merit candidate when a selected candidate vacates their position.</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Atomic op</div><div class="uc-meta-val">Both rows updated + 2 audit entries in single DB transaction</div></div>
+        </div>
+        <div class="pre-post">
+          <div class="pp-box pp-pre"><div class="pp-label">Preconditions</div><ul><li>≥1 candidate with status <code>declined</code>/<code>absent</code>/<code>disqualified</code></li><li>Next candidate in <code>provisional</code> status exists</li><li>Actor has role <code>senior_admin</code> or higher</li></ul></div>
+          <div class="pp-box pp-post"><div class="pp-label">Postconditions</div><ul><li>Outgoing row: status updated, <code>replaced_by_roll_no</code> + <code>replaced_on</code> populated</li><li>Incoming row: status = <code>replacement</code> or <code>selected</code>, merit rank updated</li><li>2 <code>merit_audit_log</code> entries written</li></ul></div>
+        </div>
+        <h4>Main Flow</h4>
+        <ol class="flow-list">
+          <li><span class="step-num">1</span><span>Actor opens award list. Rows requiring replacement are highlighted.</span></li>
+          <li><span class="step-num">2</span><span>Actor clicks <strong>Promote Next Candidate</strong> on the vacated row.</span></li>
+          <li><span class="step-num">3</span><span>System identifies next eligible candidate: highest merit rank among <code>provisional</code> status.</span></li>
+          <li><span class="step-num">4</span><span>Confirmation panel shows both candidates' details (rank, grand total, status transition).</span></li>
+          <li><span class="step-num">5</span><span>Actor enters Reason Code + optional Notes → <strong>Confirm Replacement</strong>.</span></li>
+          <li><span class="step-num">6</span><span>System atomically: updates both rows; writes 2 audit entries; re-sequences merit ranks if needed.</span></li>
+          <li><span class="step-num">7</span><span>Table re-fetches. Outgoing row read-only with Replacement Info populated.</span></li>
+        </ol>
+        <h4 style="margin-top:16px">Alternate Flows</h4>
+        <ul class="alt-list">
+          <li><span class="alt-tag">A1</span><span><strong>No next candidate (step 3):</strong> "No provisional candidates remain. Vacancy cannot be filled. Contact Chairperson." (e.g., fresh advertisement may be needed.)</span></li>
+          <li><span class="alt-tag">A2</span><span><strong>Manual replacement (step 3):</strong> Actor specifies <code>replacementAwardId</code> manually. System validates: target has higher merit rank and <code>provisional</code> status.</span></li>
+          <li><span class="alt-tag">A3</span><span><strong>Replacement chain:</strong> If promoted candidate subsequently declines, UC-R07 is re-triggered. Each step individually audit-logged.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- UC-R08 -->
+    <div id="uc-r08" class="uc-box">
+      <div class="uc-header">
+        <span class="uc-id">UC-R08</span>
+        <span class="uc-title">Publish / Withdraw Results</span>
+        <span class="uc-actor">Publication Officer</span>
+      </div>
+      <div class="uc-body">
+        <div class="uc-meta">
+          <div class="uc-meta-item"><div class="uc-meta-label">Goal</div><div class="uc-meta-val">Make results publicly available on the candidate portal, or withdraw if an error is found.</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">State machine</div><div class="uc-meta-val">draft → published ↔ withdrawn</div></div>
+        </div>
+        <div class="pre-post">
+          <div class="pp-box pp-pre"><div class="pp-label">Preconditions (Publish)</div><ul><li>All eligible candidates have mark entries</li><li>Award list approved by Senior Admin</li><li>Actor has role <code>publication_officer</code> or higher</li></ul></div>
+          <div class="pp-box pp-post"><div class="pp-label">Postconditions (Publish)</div><ul><li>Results visible on candidate portal via CNIC/Roll No. lookup</li><li><code>result_publications</code> record: <code>status = 'published'</code></li><li>Notification queue populated (if enabled)</li></ul></div>
+        </div>
+        <h4>Main Flow — Publish</h4>
+        <ol class="flow-list">
+          <li><span class="step-num">1</span><span>Actor selects Job Post and Publication Type (written_test / interview / final_merit).</span></li>
+          <li><span class="step-num">2</span><span>System runs pre-publish checklist: all marks entered ✅ · no withheld without remarks ✅ · award approved ✅ · gazette ref ⚠️ (non-blocking).</span></li>
+          <li><span class="step-num">3</span><span>Actor enters optional gazette reference. Toggles "Notify Candidates" — system shows estimated count.</span></li>
+          <li><span class="step-num">4</span><span>Actor clicks <strong>Publish Results</strong> → confirmation dialog (irreversible without Withdraw).</span></li>
+          <li><span class="step-num">5</span><span>Actor confirms → atomic transaction: <code>is_published = true</code> on all rows + <code>result_publications</code> record created + notification jobs queued.</span></li>
+          <li><span class="step-num">6</span><span>System shows delivery stats (live updates as queue processes).</span></li>
+        </ol>
+        <h4 style="margin-top:16px">Main Flow — Withdraw</h4>
+        <ol class="flow-list">
+          <li><span class="step-num">1</span><span>Actor clicks <strong>Withdraw</strong> on the publication record.</span></li>
+          <li><span class="step-num">2</span><span>System prompts for mandatory withdrawal reason.</span></li>
+          <li><span class="step-num">3</span><span>Actor confirms → <code>is_published = false</code>, <code>status = 'withdrawn'</code>. Candidate portal hides results. Senior Admin notified.</span></li>
+        </ol>
+        <h4 style="margin-top:16px">Alternate Flows</h4>
+        <ul class="alt-list">
+          <li><span class="alt-tag">A1</span><span><strong>Checklist fails (step 2):</strong> Blocking item present → Publish button disabled. Actor must resolve before proceeding.</span></li>
+          <li><span class="alt-tag">A2</span><span><strong>Warnings only (step 2):</strong> Non-blocking. Each warning acknowledged is logged. Actor may proceed.</span></li>
+          <li><span class="alt-tag">A3</span><span><strong>Staged publish by district (step 5):</strong> Actor filters publication scope by district — system publishes only the filtered subset, enabling staged rollout.</span></li>
+          <li><span class="alt-tag">A4</span><span><strong>Notification delivery failure (step 6):</strong> Individual failures do not block the publication. Failed entries in notification log; actor can retry from Notifications module.</span></li>
+        </ul>
+      </div>
+    </div>
+
+  </section>
+
+  <div class="footer">
+    AJK PSC Admin Portal — Results Module Specification &nbsp;·&nbsp;
+    PHP 8.3+ · ReactJS + TypeScript &nbsp;·&nbsp;
+    v1.0 · 2026-05-08
+  </div>
+</main>
+
+<script>
+  // Active nav link on scroll
+  const links = document.querySelectorAll('.nav-link');
+  const sections = Array.from(document.querySelectorAll('[id]')).filter(el =>
+    ['H2','H3','DIV'].includes(el.tagName) || el.classList.contains('uc-box') || el.classList.contains('journey-box')
+  );
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const match = document.querySelector(`.nav-link[href="#${e.target.id}"]`);
+        if (match) match.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  document.querySelectorAll('[id]').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
