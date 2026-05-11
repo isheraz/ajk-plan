@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>AJK PSC — Results Module Spec</title>
+<title>AJK PSC — Results Module Spec (v2.0)</title>
 <style>
   /* ── Reset & Base ── */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -151,6 +151,7 @@
   }
 
   h4 { font-size: 13px; font-weight: 700; color: var(--mid); margin: 20px 0 8px; text-transform: uppercase; letter-spacing: .6px; }
+  h5 { font-size: 12px; font-weight: 700; color: var(--mid); margin: 16px 0 6px; }
 
   p { margin-bottom: 14px; color: var(--ink); }
 
@@ -158,6 +159,7 @@
   .section-dto   h3.sub-heading::before { background: var(--blue); }
   .section-uj    h3.sub-heading::before { background: var(--green); }
   .section-uc    h3.sub-heading::before { background: var(--purple); }
+  .section-new   h3.sub-heading::before { background: #f59e0b; }
 
   /* ── Code blocks ── */
   .code-wrap { margin: 16px 0; border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
@@ -182,15 +184,15 @@
   code { font-family: var(--mono); }
 
   /* Syntax colours */
-  .k  { color: #c084fc; } /* keywords: final, readonly, public, enum */
-  .t  { color: #7dd3fc; } /* types */
-  .s  { color: #86efac; } /* strings */
-  .n  { color: #fde68a; } /* identifiers / variables */
-  .cm { color: #475569; font-style: italic; } /* comments */
-  .at { color: #fb923c; } /* attributes #[...] */
-  .nu { color: #f9a8d4; } /* numbers */
-  .kw { color: #818cf8; } /* interface, type, export */
-  .op { color: #94a3b8; } /* operators */
+  .k  { color: #c084fc; }
+  .t  { color: #7dd3fc; }
+  .s  { color: #86efac; }
+  .n  { color: #fde68a; }
+  .cm { color: #475569; font-style: italic; }
+  .at { color: #fb923c; }
+  .nu { color: #f9a8d4; }
+  .kw { color: #818cf8; }
+  .op { color: #94a3b8; }
 
   /* inline code */
   code:not(pre code) {
@@ -200,1252 +202,1228 @@
   }
 
   /* ── Tables ── */
-  .tbl-wrap { overflow-x: auto; margin: 16px 0; border-radius: var(--radius); border: 1px solid var(--border); }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  thead tr { background: var(--ink); color: white; }
-  thead th { padding: 10px 14px; text-align: left; font-weight: 600; font-size: 12px; letter-spacing: .3px; }
-  tbody tr { border-bottom: 1px solid var(--border); }
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:nth-child(even) { background: #f8fafc; }
-  tbody td { padding: 9px 14px; vertical-align: top; }
-  tbody td:first-child { font-weight: 600; color: var(--blue-dk); white-space: nowrap; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+  th { background: var(--blue-lt); color: var(--blue-dk); padding: 10px; text-align: left; font-weight: 700; border: 1px solid var(--border); }
+  td { padding: 10px; border: 1px solid var(--border); }
+  tr:nth-child(even) { background: #fafafa; }
 
-  /* ── Cards ── */
-  .card {
-    background: white; border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 20px 24px; margin: 16px 0;
-  }
-  .card-blue   { border-left: 4px solid var(--blue);   background: var(--blue-lt); }
-  .card-green  { border-left: 4px solid var(--green);  background: var(--green-lt); }
-  .card-amber  { border-left: 4px solid var(--amber);  background: var(--amber-lt); }
-  .card-red    { border-left: 4px solid var(--red);    background: var(--red-lt); }
-  .card-purple { border-left: 4px solid var(--purple); background: var(--purple-lt); }
+  /* ── Lists ── */
+  ul, ol { margin: 12px 0 12px 24px; }
+  li { margin-bottom: 6px; }
 
-  /* ── Use case box ── */
-  .uc-box {
-    background: white; border: 1px solid var(--border); border-radius: 8px;
-    margin: 28px 0; overflow: hidden;
-    box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  /* ── Boxes ── */
+  .info-box {
+    background: var(--blue-lt); border-left: 4px solid var(--blue); padding: 12px 16px;
+    border-radius: 4px; margin: 16px 0;
   }
-  .uc-header {
-    display: flex; align-items: center; gap: 14px;
-    padding: 16px 22px; border-bottom: 1px solid var(--border);
-    background: #f8fafc;
-  }
-  .uc-id {
-    font-family: var(--mono); font-size: 12px; font-weight: 700;
-    background: var(--purple); color: white;
-    padding: 3px 10px; border-radius: 4px; white-space: nowrap;
-  }
-  .uc-title { font-size: 15px; font-weight: 700; color: var(--navy); }
-  .uc-actor { font-size: 12px; color: var(--mid); margin-left: auto; white-space: nowrap; }
-  .uc-body { padding: 20px 22px; }
-
-  .uc-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-  .uc-meta-item { background: #f8fafc; border: 1px solid var(--border); border-radius: 5px; padding: 10px 14px; }
-  .uc-meta-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 4px; }
-  .uc-meta-val { font-size: 13px; color: var(--ink); }
-
-  .flow-list { list-style: none; padding: 0; }
-  .flow-list li {
-    display: flex; gap: 12px; padding: 8px 0;
-    border-bottom: 1px solid #f1f5f9; font-size: 13.5px;
-  }
-  .flow-list li:last-child { border-bottom: none; }
-  .step-num {
-    display: flex; align-items: center; justify-content: center;
-    width: 22px; height: 22px; min-width: 22px;
-    border-radius: 50%; background: var(--blue); color: white;
-    font-size: 11px; font-weight: 700; margin-top: 2px;
+  .warning-box {
+    background: var(--amber-lt); border-left: 4px solid var(--amber); padding: 12px 16px;
+    border-radius: 4px; margin: 16px 0;
   }
 
-  .alt-list { list-style: none; padding: 0; }
-  .alt-list li { padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 13px; display: flex; gap: 10px; }
-  .alt-list li:last-child { border-bottom: none; }
-  .alt-tag {
-    font-family: var(--mono); font-size: 10.5px; font-weight: 700;
-    background: var(--amber-lt); color: var(--amber);
-    border: 1px solid #fcd34d; padding: 1px 7px; border-radius: 3px;
-    white-space: nowrap; height: fit-content; margin-top: 2px;
+  .uc-box, .journey-box {
+    border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin: 20px 0;
+    background: white;
   }
+
+  .uc-header, .journey-header {
+    display: flex; gap: 12px; align-items: center; margin-bottom: 16px; border-bottom: 2px solid var(--border); padding-bottom: 12px;
+  }
+
+  .uc-id, .journey-id {
+    background: var(--blue); color: white; padding: 4px 8px; border-radius: 4px;
+    font-size: 11px; font-weight: 700; flex-shrink: 0;
+  }
+
+  .uc-title, .journey-title {
+    font-weight: 700; flex: 1;
+  }
+
+  .uc-actor, .journey-actor {
+    background: #f1f5f9; padding: 4px 8px; border-radius: 4px; font-size: 12px; color: var(--mid);
+  }
+
+  .uc-meta, .journey-meta { background: #f9fafb; padding: 12px; border-radius: 4px; margin-bottom: 16px; }
+  .uc-meta-item, .journey-meta-item { display: flex; gap: 12px; margin-bottom: 8px; font-size: 13px; }
+  .uc-meta-label, .journey-meta-label { font-weight: 700; min-width: 120px; color: var(--mid); }
 
   .pre-post { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
-  .pp-box { border-radius: 5px; padding: 12px 16px; font-size: 13px; }
-  .pp-pre  { background: #fef9c3; border: 1px solid #fcd34d; }
-  .pp-post { background: #dcfce7; border: 1px solid #86efac; }
-  .pp-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 6px; }
-  .pp-box ul { padding-left: 16px; }
-  .pp-box li { margin-bottom: 4px; }
+  .pp-box { background: #f9fafb; padding: 12px; border-radius: 4px; border-left: 3px solid var(--green); }
+  .pp-label { font-weight: 700; font-size: 12px; color: var(--green); margin-bottom: 8px; text-transform: uppercase; }
+  .pp-box ul { margin: 8px 0 0 20px; }
 
-  /* ── Journey box ── */
-  .journey-box {
-    background: white; border: 1px solid var(--border); border-radius: 8px;
-    margin: 28px 0; overflow: hidden;
-    box-shadow: 0 1px 4px rgba(0,0,0,.05);
-  }
-  .journey-header {
-    padding: 16px 22px; border-bottom: 1px solid var(--border);
-    background: linear-gradient(135deg, #052e16 0%, #14532d 100%); color: white;
-  }
-  .journey-num { font-size: 11px; font-weight: 700; color: #4ade80; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
-  .journey-title { font-size: 16px; font-weight: 800; }
-  .journey-sub { font-size: 12px; color: #86efac; margin-top: 4px; }
-  .journey-body { padding: 22px; }
+  .flow-list { list-style: none; margin: 12px 0; }
+  .flow-list li { display: flex; gap: 12px; margin-bottom: 10px; }
+  .step-num { background: var(--blue); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; flex-shrink: 0; }
 
-  .journey-meta { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
-  .jm-item { font-size: 12.5px; }
-  .jm-label { color: var(--muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 2px; }
-  .jm-val { font-weight: 600; color: var(--ink); }
+  .alt-list { list-style: none; margin: 12px 0; }
+  .alt-list li { display: flex; gap: 12px; margin-bottom: 10px; padding: 8px; background: #f9fafb; border-radius: 4px; }
+  .alt-tag { background: var(--purple); color: white; padding: 2px 6px; border-radius: 3px; font-weight: 700; font-size: 11px; flex-shrink: 0; }
 
-  .step-section { margin: 18px 0; }
-  .step-section h4 { color: var(--green); margin-bottom: 10px; font-size: 12.5px; }
-
-  .alt-path {
-    background: #fffbeb; border: 1px solid #fcd34d; border-radius: 5px;
-    padding: 10px 14px; margin-top: 10px; font-size: 13px;
-  }
-  .alt-path strong { color: var(--amber); }
-
-  /* ── Conventions box ── */
-  .conventions {
-    background: #0f172a; border-radius: 8px; padding: 20px 24px; margin: 16px 0;
-  }
-  .conventions p { color: #94a3b8; font-size: 13px; margin-bottom: 8px; }
-  .conventions p:last-child { margin-bottom: 0; }
-  .conventions strong { color: #e2e8f0; }
-
-  /* ── Priority badge ── */
-  .badge { display: inline-block; font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
-  .badge-p0 { background: #fef2f2; color: #dc2626; }
-  .badge-p1 { background: #fffbeb; color: #d97706; }
-
-  /* ── Actor chips in UC table ── */
-  .actor-chip {
-    display: inline-block; font-size: 11px; font-weight: 600;
-    padding: 2px 8px; border-radius: 20px;
-    background: var(--blue-lt); color: var(--blue-dk);
-  }
-
-  /* ── Divider ── */
-  hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
-
-  /* ── Footer ── */
   .footer {
-    margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--border);
-    font-size: 12px; color: var(--muted); text-align: center;
+    border-top: 2px solid var(--border);
+    padding: 24px 56px;
+    margin-top: 60px;
+    color: var(--muted);
+    font-size: 12px;
   }
 
-  /* ── Print ── */
-  @media print {
-    #sidebar { display: none; }
-    #main { margin-left: 0; padding: 20px; }
-    .uc-box, .journey-box { break-inside: avoid; }
-    .code-wrap { break-inside: avoid; }
-    pre { white-space: pre-wrap; }
+  .new-badge { background: #fbbf24; color: #78350f; padding: 2px 6px; border-radius: 3px; font-weight: 600; font-size: 11px; }
+
+  .api-endpoint {
+    background: #f9fafb; padding: 12px 16px; border-radius: 4px; margin: 12px 0;
+    border-left: 4px solid var(--blue); font-family: var(--mono);
+  }
+
+  .method-get { color: #16a34a; font-weight: 700; }
+  .method-post { color: #dc2626; font-weight: 700; }
+  .method-put { color: #7c3aed; font-weight: 700; }
+
+  @media (max-width: 1200px) {
+    #main { padding: 32px 24px 60px; }
+    .pre-post { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 768px) {
+    body { flex-direction: column; }
+    #sidebar { position: static; width: 100%; height: auto; padding: 12px 0; }
+    #main { margin-left: 0; padding: 24px 16px; }
+    .page-header { padding: 20px; }
+    .page-header h1 { font-size: 20px; }
   }
 </style>
 </head>
 <body>
 
-<!-- ════════════════════════════════════════════════════
-     SIDEBAR
-════════════════════════════════════════════════════ -->
-<nav id="sidebar">
+<aside id="sidebar">
   <div class="sidebar-logo">
-    <div class="org">AJK PSC · Admin Portal</div>
-    <div class="title">Results Module<br>Specification</div>
-    <span class="badge">PHP 8.3 · ReactJS</span>
+    <div class="org">AJK PSC</div>
+    <div class="title">Results Module</div>
+    <span class="badge">v2.0</span>
   </div>
 
-  <div class="nav-section">
-    <div class="nav-section-label">DTOs</div>
-    <a class="nav-link" href="#dto-conventions">Conventions</a>
-    <a class="nav-link" href="#dto-mark-entry">① Mark Entry</a>
-    <a class="nav-link sub" href="#dto-mark-req">Request DTOs</a>
-    <a class="nav-link sub" href="#dto-mark-res">Response DTOs</a>
-    <a class="nav-link sub" href="#dto-mark-ts">TypeScript</a>
-    <a class="nav-link" href="#dto-result-view">② Result View &amp; Print</a>
-    <a class="nav-link sub" href="#dto-rv-req">Request DTOs</a>
-    <a class="nav-link sub" href="#dto-rv-res">Response DTOs</a>
-    <a class="nav-link" href="#dto-award">③ Award List</a>
-    <a class="nav-link sub" href="#dto-award-req">Request DTOs</a>
-    <a class="nav-link sub" href="#dto-award-res">Response DTOs</a>
-    <a class="nav-link" href="#dto-merit">④ Merit Rotation</a>
-    <a class="nav-link" href="#dto-publish">⑤ Publication</a>
-    <a class="nav-link" href="#dto-shared">Shared Types</a>
-  </div>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-label">Overview</div>
+      <a class="nav-link" href="#overview">Overview</a>
+      <a class="nav-link" href="#arch">Architecture</a>
+      <a class="nav-link" href="#v2-changes">v2.0 Enhancements</a>
+    </div>
 
-  <div class="nav-section">
-    <div class="nav-section-label">User Journeys</div>
-    <a class="nav-link" href="#uj1">① Data Entry Officer</a>
-    <a class="nav-link" href="#uj2">② Results Admin</a>
-    <a class="nav-link" href="#uj3">③ Interview Secretary</a>
-    <a class="nav-link" href="#uj4">④ Senior Admin</a>
-    <a class="nav-link" href="#uj5">⑤ Publication Officer</a>
-  </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Core Features (v1.0)</div>
+      <a class="nav-link" href="#uc-r01">UC-R01: Enter Marks</a>
+      <a class="nav-link" href="#uc-r02">UC-R02: CSV Import</a>
+      <a class="nav-link" href="#uc-r03">UC-R03: Search Result</a>
+      <a class="nav-link" href="#uc-r04">UC-R04: Award List</a>
+      <a class="nav-link" href="#uc-r05">UC-R05: Edit Published</a>
+      <a class="nav-link" href="#uc-r06">UC-R06: Change Status</a>
+      <a class="nav-link" href="#uc-r07">UC-R07: Merit Rotation</a>
+      <a class="nav-link" href="#uc-r08">UC-R08: Publish Results</a>
+    </div>
 
-  <div class="nav-section">
-    <div class="nav-section-label">Use Cases</div>
-    <a class="nav-link" href="#uc-register">Register</a>
-    <a class="nav-link" href="#uc-r01">UC-R01 Enter Marks</a>
-    <a class="nav-link" href="#uc-r02">UC-R02 CSV Import</a>
-    <a class="nav-link" href="#uc-r03">UC-R03 View &amp; Print</a>
-    <a class="nav-link" href="#uc-r04">UC-R04 Award List</a>
-    <a class="nav-link" href="#uc-r05">UC-R05 Interview Marks</a>
-    <a class="nav-link" href="#uc-r06">UC-R06 Status Update</a>
-    <a class="nav-link" href="#uc-r07">UC-R07 Merit Rotation</a>
-    <a class="nav-link" href="#uc-r08">UC-R08 Publish / Withdraw</a>
-  </div>
-</nav>
+    <div class="nav-section">
+      <div class="nav-section-label">Enhanced Features (v2.0)</div>
+      <a class="nav-link" href="#uc-r01a">UC-R01a: Table + Filtering</a>
+      <a class="nav-link" href="#uc-r01b">UC-R01b: Dialog Marks Entry</a>
+      <a class="nav-link" href="#uc-r01c">UC-R01c: Edit Approval</a>
+      <a class="nav-link" href="#uc-r02a">UC-R02a: CSV Template</a>
+      <a class="nav-link" href="#uc-r02b">UC-R02b: CSV Upload+Preview</a>
+      <a class="nav-link" href="#uc-r02c">UC-R02c: Status Tracking</a>
+    </div>
 
-<!-- ════════════════════════════════════════════════════
-     MAIN
-════════════════════════════════════════════════════ -->
+    <div class="nav-section">
+      <div class="nav-section-label">Backend APIs (v2.0)</div>
+      <a class="nav-link" href="#api-candidates">GET /candidates</a>
+      <a class="nav-link" href="#api-marks">PUT /marks</a>
+      <a class="nav-link" href="#api-csv">CSV Endpoints</a>
+      <a class="nav-link" href="#api-pagination">Pagination Strategy</a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Implementation</div>
+      <a class="nav-link" href="#db-schema">Database Changes</a>
+      <a class="nav-link" href="#validation">Validation Rules</a>
+      <a class="nav-link" href="#summary">Summary & Checklist</a>
+    </div>
+  </nav>
+</aside>
+
 <main id="main">
-
-  <!-- Page Header -->
   <div class="page-header">
-    <div class="pre-title">Technical Specification · v1.0 · 2026-05-08</div>
-    <h1>AJK PSC — Results Module</h1>
+    <div class="pre-title">AJK PSC Admin Portal</div>
+    <h1>Results Module Specification</h1>
     <div class="meta">
-      <span class="pill"><span class="dot"></span>PHP 8.3+</span>
-      <span class="pill"><span class="dot"></span>ReactJS + TypeScript</span>
-      <span class="pill"><span class="dot"></span>5 Sub-Modules</span>
-      <span class="pill"><span class="dot"></span>8 Use Cases</span>
-      <span class="pill"><span class="dot"></span>5 User Journeys</span>
+      <div class="pill"><span class="dot"></span>Version 2.0</div>
+      <div class="pill">Updated: 2026-05-11</div>
+      <div class="pill">Enhanced Mark Entry &amp; CSV Management</div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════
-       SECTION 1 — DTOs
-  ══════════════════════════════════════════════ -->
-  <section class="section-dto">
-    <h2 class="section-heading" id="dtos">
-      <span class="section-num" style="background:var(--blue)">1</span>
-      Request &amp; Response DTOs
+  <!-- ============ OVERVIEW ============ -->
+  <section id="overview">
+    <h2 class="section-heading" style="background: #eff6ff; --bs-bg-opacity: .3; padding: 10px; border-radius: 6px;">
+      <span class="section-num" style="background: var(--blue);">1</span>
+      Overview
     </h2>
 
-    <!-- Conventions -->
-    <div id="dto-conventions"></div>
-    <h3 class="sub-heading">Conventions</h3>
-    <div class="conventions">
-      <p><strong>PHP backend</strong> uses <code>readonly</code> classes (PHP 8.2+) with constructor promotion and named arguments.</p>
-      <p><strong>TypeScript frontend</strong> mirrors them as interfaces consumed by React Query hooks.</p>
-      <p>Validation uses <code>symfony/validator</code> annotations — adapt to Laravel <code>FormRequest</code> if using Laravel.</p>
-      <p>All timestamps are <strong>ISO 8601</strong> strings in responses (<code>2025-03-15T10:30:00Z</code>). Nullable fields are marked <code>?</code> in TypeScript and <code>?Type</code> in PHP.</p>
+    <p>The AJK Results Module manages the complete lifecycle of exam results: from mark entry and validation, through merit ranking, to official publication and withdrawal. This specification covers both the original v1.0 workflows and the new v2.0 enhancements for production-scale mark management.</p>
+
+    <h3 class="sub-heading">Module Goals</h3>
+    <ul>
+      <li><strong>Data Entry:</strong> Record exam marks for 5000+ candidates with validation safeguards</li>
+      <li><strong>Bulk Operations:</strong> Import marks via CSV with preview and error handling</li>
+      <li><strong>Approval Workflow:</strong> Track and approve mark corrections with full audit trail</li>
+      <li><strong>Merit Ranking:</strong> Auto-rank candidates and handle promotions/replacements atomically</li>
+      <li><strong>Publication:</strong> Publish results to candidate portal with staged rollout capability</li>
+      <li><strong>Compliance:</strong> Audit every action (create, edit, approve, withdraw)</li>
+    </ul>
+
+    <h3 class="sub-heading">Key Changes in v2.0</h3>
+    <ul>
+      <li><span class="new-badge">NEW</span> <strong>Candidates List Table:</strong> TanStack Table with virtual scrolling for 5000+ candidates</li>
+      <li><span class="new-badge">NEW</span> <strong>Dialog-Based Entry:</strong> Hierarchical mark entry form (main exam + sub-sections)</li>
+      <li><span class="new-badge">NEW</span> <strong>Approval Workflow:</strong> Mark edits require admin approval before save</li>
+      <li><span class="new-badge">NEW</span> <strong>CSV Template Download:</strong> Pre-filled CSV with candidate data</li>
+      <li><span class="new-badge">NEW</span> <strong>Enhanced CSV Import:</strong> Preview + selective skip for invalid rows</li>
+      <li><span class="new-badge">NEW</span> <strong>Marks Status Tracking:</strong> Complete / Partial / Incomplete / Pending Review</li>
+      <li><span class="new-badge">NEW</span> <strong>Keyset Pagination:</strong> Efficient cursor-based pagination for large datasets</li>
+    </ul>
+  </section>
+
+  <!-- ============ ARCHITECTURE ============ -->
+  <section id="arch">
+    <h2 class="section-heading" style="background: #f0fdf4; --bs-bg-opacity: .3; padding: 10px; border-radius: 6px;">
+      <span class="section-num" style="background: var(--green);">2</span>
+      Architecture Overview
+    </h2>
+
+    <h3 class="sub-heading">Two Main Workflows</h3>
+
+    <h5>Flow A: Direct Mark Entry (Dialog-Based)</h5>
+    <div class="info-box">
+      User selects job → Views candidates table → Clicks "Add/Edit Marks" → Dialog opens → Enters hierarchical marks → Saves → If editing existing: requires approval
     </div>
 
-    <!-- ── 1.1 Mark Entry ── -->
-    <div id="dto-mark-entry"></div>
-    <h3 class="sub-heading" style="margin-top:36px">① Mark Entry</h3>
-
-    <div id="dto-mark-req"></div>
-    <h4>Request DTOs — PHP</h4>
-
-    <div class="code-wrap">
-      <div class="code-label"><span>POST /api/results/marks — Manual single-candidate entry</span><span class="lang">PHP 8.3</span></div>
-      <pre><span class="k">final readonly class</span> <span class="t">MarkEntryRequest</span>
-{
-    <span class="k">public function</span> <span class="n">__construct</span>(
-        <span class="at">#[NotBlank]</span>
-        <span class="k">public</span> <span class="t">int</span>    <span class="n">$applicationId</span>,
-
-        <span class="at">#[NotBlank]</span>
-        <span class="k">public</span> <span class="t">int</span>    <span class="n">$jobPostId</span>,
-
-        <span class="at">#[NotBlank, Date]</span>
-        <span class="k">public</span> <span class="t">string</span> <span class="n">$examDate</span>,           <span class="cm">// YYYY-MM-DD</span>
-
-        <span class="at">#[NotBlank, Choice(['detailed', 'summary'])]</span>
-        <span class="k">public</span> <span class="t">string</span> <span class="n">$resultType</span>,
-
-        <span class="at">#[NotBlank, Positive]</span>
-        <span class="k">public</span> <span class="t">int</span>    <span class="n">$totalMaxMarks</span>,
-
-        <span class="at">#[NotBlank, Positive]</span>
-        <span class="k">public</span> <span class="t">int</span>    <span class="n">$passingMarks</span>,
-
-        <span class="cm">// Required only when resultType === 'summary'</span>
-        <span class="at">#[PositiveOrZero]</span>
-        <span class="k">public</span> <span class="t">?int</span>   <span class="n">$obtainedMarks</span> = <span class="nu">null</span>,
-
-        <span class="cm">// Required only when resultType === 'detailed' — @var SubjectMarkDTO[]</span>
-        <span class="at">#[Valid]</span>
-        <span class="k">public</span> <span class="t">array</span>  <span class="n">$subjects</span> = [],
-
-        <span class="at">#[Choice(['pass', 'fail', 'absent', 'withheld'])]</span>
-        <span class="k">public</span> <span class="t">?string</span> <span class="n">$statusOverride</span> = <span class="nu">null</span>, <span class="cm">// null = auto-computed</span>
-    ) {}
-}
-
-<span class="k">final readonly class</span> <span class="t">SubjectMarkDTO</span>
-{
-    <span class="k">public function</span> <span class="n">__construct</span>(
-        <span class="at">#[NotBlank, Length(max: 150)]</span>
-        <span class="k">public</span> <span class="t">string</span> <span class="n">$subjectName</span>,
-
-        <span class="at">#[NotBlank, Positive]</span>
-        <span class="k">public</span> <span class="t">int</span>    <span class="n">$maxMarks</span>,
-
-        <span class="at">#[NotBlank, PositiveOrZero]</span>
-        <span class="k">public</span> <span class="t">int</span>    <span class="n">$obtainedMarks</span>,
-
-        <span class="at">#[PositiveOrZero]</span>
-        <span class="k">public</span> <span class="t">int</span>    <span class="n">$subjectOrder</span> = <span class="nu">0</span>,
-    ) {}
-}
-
-<span class="k">final readonly class</span> <span class="t">CSVImportRequest</span>
-{
-    <span class="k">public function</span> <span class="n">__construct</span>(
-        <span class="at">#[NotBlank]</span>
-        <span class="k">public</span> <span class="t">int</span>    <span class="n">$jobPostId</span>,
-
-        <span class="at">#[NotBlank, Date]</span>
-        <span class="k">public</span> <span class="t">string</span> <span class="n">$examDate</span>,
-
-        <span class="at">#[NotBlank, Choice(['detailed', 'summary'])]</span>
-        <span class="k">public</span> <span class="t">string</span> <span class="n">$resultType</span>,
-
-        <span class="at">#[NotBlank, File(mimeTypes: ['text/csv', 'text/plain'], maxSize: '5M')]</span>
-        <span class="k">public</span> <span class="t">mixed</span>  <span class="n">$file</span>,              <span class="cm">// UploadedFile</span>
-
-        <span class="k">public</span> <span class="t">bool</span>   <span class="n">$dryRun</span> = <span class="nu">false</span>,    <span class="cm">// validate without persisting</span>
-    ) {}
-}
-
-<span class="k">final readonly class</span> <span class="t">UpdateMarkRequest</span>
-{
-    <span class="k">public function</span> <span class="n">__construct</span>(
-        <span class="at">#[PositiveOrZero]</span>
-        <span class="k">public</span> <span class="t">?int</span>   <span class="n">$obtainedMarks</span> = <span class="nu">null</span>,
-
-        <span class="at">#[Valid]</span>
-        <span class="k">public</span> <span class="t">array</span>  <span class="n">$subjects</span> = [],
-
-        <span class="at">#[NotBlank, Length(min: 5, max: 500)]</span>
-        <span class="k">public</span> <span class="t">string</span> <span class="n">$editReason</span>,        <span class="cm">// mandatory justification</span>
-    ) {}
-}</pre>
+    <h5>Flow B: Bulk CSV Import</h5>
+    <div class="info-box">
+      User selects job → Clicks "Download Template" → Fills marks in Excel → Uploads CSV → Preview shows first 50 rows + errors → User confirms → Marks saved with batch ID
     </div>
 
-    <div id="dto-mark-res"></div>
-    <h4>Response DTOs — PHP</h4>
+    <h3 class="sub-heading">Marks Status Lifecycle</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Meaning</th>
+          <th>Transition</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>incomplete</code></td>
+          <td>No marks recorded</td>
+          <td>→ complete</td>
+          <td>Enter marks via dialog or CSV</td>
+        </tr>
+        <tr>
+          <td><code>partial</code></td>
+          <td>Some sections filled, some empty</td>
+          <td>→ complete</td>
+          <td>Fill remaining sections</td>
+        </tr>
+        <tr>
+          <td><code>complete</code></td>
+          <td>All sections have marks</td>
+          <td>→ pending_review</td>
+          <td>Edit existing marks (requires reason)</td>
+        </tr>
+        <tr>
+          <td><code>pending_review</code></td>
+          <td>Marks edited, awaiting admin approval</td>
+          <td>→ complete</td>
+          <td>Results Admin approves edit</td>
+        </tr>
+      </tbody>
+    </table>
 
-    <div class="code-wrap">
-      <div class="code-label"><span>ExamResultResponse + SubjectMarkResponse</span><span class="lang">PHP 8.3</span></div>
-      <pre><span class="k">final readonly class</span> <span class="t">ExamResultResponse</span>
-{
-    <span class="k">public function</span> <span class="n">__construct</span>(
-        <span class="k">public</span> <span class="t">int</span>     <span class="n">$id</span>,
-        <span class="k">public</span> <span class="t">int</span>     <span class="n">$applicationId</span>,
-        <span class="k">public</span> <span class="t">int</span>     <span class="n">$jobPostId</span>,
-        <span class="k">public</span> <span class="t">string</span>  <span class="n">$examDate</span>,
-        <span class="k">public</span> <span class="t">string</span>  <span class="n">$resultType</span>,        <span class="cm">// 'detailed' | 'summary'</span>
-        <span class="k">public</span> <span class="t">int</span>     <span class="n">$totalMaxMarks</span>,
-        <span class="k">public</span> <span class="t">int</span>     <span class="n">$passingMarks</span>,
-        <span class="k">public</span> <span class="t">int</span>     <span class="n">$obtainedMarks</span>,
-        <span class="k">public</span> <span class="t">float</span>   <span class="n">$percentage</span>,
-        <span class="k">public</span> <span class="t">string</span>  <span class="n">$status</span>,            <span class="cm">// 'pass'|'fail'|'absent'|'withheld'</span>
-        <span class="k">public</span> <span class="t">bool</span>    <span class="n">$isPublished</span>,
-        <span class="k">public</span> <span class="t">?string</span> <span class="n">$publishedAt</span>,
-        <span class="k">public</span> <span class="t">string</span>  <span class="n">$createdAt</span>,
-        <span class="k">public</span> <span class="t">string</span>  <span class="n">$updatedAt</span>,
-        <span class="cm">/** @var SubjectMarkResponse[] */</span>
-        <span class="k">public</span> <span class="t">array</span>   <span class="n">$subjects</span> = [],     <span class="cm">// empty for summary</span>
-        <span class="k">public</span> <span class="t">?UserSummary</span> <span class="n">$createdBy</span> = <span class="nu">null</span>,
-        <span class="k">public</span> <span class="t">?UserSummary</span> <span class="n">$updatedBy</span> = <span class="nu">null</span>,
-    ) {}
-}
-
-<span class="k">final readonly class</span> <span class="t">SubjectMarkResponse</span>
-{
-    <span class="k">public function</span> <span class="n">__construct</span>(
-        <span class="k">public</span> <span class="t">int</span>    <span class="n">$id</span>,
-        <span class="k">public</span> <span class="t">string</span> <span class="n">$subjectName</span>,
-        <span class="k">public</span> <span class="t">int</span>    <span class="n">$maxMarks</span>,
-        <span class="k">public</span> <span class="t">int</span>    <span class="n">$obtainedMarks</span>,
-        <span class="k">public</span> <span class="t">int</span>    <span class="n">$subjectOrder</span>,
-        <span class="k">public</span> <span class="t">string</span> <span class="n">$enteredAt</span>,
-        <span class="k">public</span> <span class="t">UserSummary</span> <span class="n">$enteredBy</span>,
-    ) {}
-}
-
-<span class="k">final readonly class</span> <span class="t">CSVImportPreviewResponse</span>
-{
-    <span class="k">public function</span> <span class="n">__construct</span>(
-        <span class="k">public</span> <span class="t">int</span>   <span class="n">$totalRows</span>,
-        <span class="k">public</span> <span class="t">int</span>   <span class="n">$validRows</span>,
-        <span class="k">public</span> <span class="t">int</span>   <span class="n">$errorRows</span>,
-        <span class="cm">/** @var CSVRowError[] */</span>
-        <span class="k">public</span> <span class="t">array</span> <span class="n">$errors</span>,
-        <span class="cm">/** @var ExamResultResponse[] */</span>
-        <span class="k">public</span> <span class="t">array</span> <span class="n">$preview</span>,
-    ) {}
-}</pre>
-    </div>
-
-    <div id="dto-mark-ts"></div>
-    <h4>TypeScript — Frontend</h4>
-
-    <div class="code-wrap">
-      <div class="code-label"><span>src/types/results/markEntry.ts</span><span class="lang">TypeScript</span></div>
-      <pre><span class="kw">export interface</span> <span class="t">SubjectMarkDTO</span> {
-  subjectName<span class="op">:</span> <span class="t">string</span>;
-  maxMarks<span class="op">:</span> <span class="t">number</span>;
-  obtainedMarks<span class="op">:</span> <span class="t">number</span>;
-  subjectOrder<span class="op">?:</span> <span class="t">number</span>;
-}
-
-<span class="kw">export interface</span> <span class="t">MarkEntryRequest</span> {
-  applicationId<span class="op">:</span> <span class="t">number</span>;
-  jobPostId<span class="op">:</span> <span class="t">number</span>;
-  examDate<span class="op">:</span> <span class="t">string</span>;                    <span class="cm">// YYYY-MM-DD</span>
-  resultType<span class="op">:</span> <span class="s">'detailed'</span> <span class="op">|</span> <span class="s">'summary'</span>;
-  totalMaxMarks<span class="op">:</span> <span class="t">number</span>;
-  passingMarks<span class="op">:</span> <span class="t">number</span>;
-  obtainedMarks<span class="op">?:</span> <span class="t">number</span>;              <span class="cm">// summary only</span>
-  subjects<span class="op">?:</span> <span class="t">SubjectMarkDTO</span>[];         <span class="cm">// detailed only</span>
-  statusOverride<span class="op">?:</span> <span class="s">'pass'</span> <span class="op">|</span> <span class="s">'fail'</span> <span class="op">|</span> <span class="s">'absent'</span> <span class="op">|</span> <span class="s">'withheld'</span>;
-}
-
-<span class="kw">export interface</span> <span class="t">ExamResultResponse</span> {
-  id<span class="op">:</span> <span class="t">number</span>;
-  applicationId<span class="op">:</span> <span class="t">number</span>;
-  jobPostId<span class="op">:</span> <span class="t">number</span>;
-  examDate<span class="op">:</span> <span class="t">string</span>;
-  resultType<span class="op">:</span> <span class="s">'detailed'</span> <span class="op">|</span> <span class="s">'summary'</span>;
-  totalMaxMarks<span class="op">:</span> <span class="t">number</span>;
-  passingMarks<span class="op">:</span> <span class="t">number</span>;
-  obtainedMarks<span class="op">:</span> <span class="t">number</span>;
-  percentage<span class="op">:</span> <span class="t">number</span>;
-  status<span class="op">:</span> <span class="s">'pass'</span> <span class="op">|</span> <span class="s">'fail'</span> <span class="op">|</span> <span class="s">'absent'</span> <span class="op">|</span> <span class="s">'withheld'</span>;
-  isPublished<span class="op">:</span> <span class="t">boolean</span>;
-  publishedAt<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
-  createdAt<span class="op">:</span> <span class="t">string</span>;
-  updatedAt<span class="op">:</span> <span class="t">string</span>;
-  subjects<span class="op">:</span> <span class="t">SubjectMarkResponse</span>[];
-  createdBy<span class="op">:</span> <span class="t">UserSummary</span> <span class="op">|</span> <span class="t">null</span>;
-  updatedBy<span class="op">:</span> <span class="t">UserSummary</span> <span class="op">|</span> <span class="t">null</span>;
-}
-
-<span class="kw">export interface</span> <span class="t">CSVImportPreviewResponse</span> {
-  totalRows<span class="op">:</span> <span class="t">number</span>;
-  validRows<span class="op">:</span> <span class="t">number</span>;
-  errorRows<span class="op">:</span> <span class="t">number</span>;
-  errors<span class="op">:</span> <span class="t">Array</span>&lt;{ rowNumber<span class="op">:</span> <span class="t">number</span>; rollNo<span class="op">:</span> <span class="t">string</span>; field<span class="op">:</span> <span class="t">string</span>; message<span class="op">:</span> <span class="t">string</span> }&gt;;
-  preview<span class="op">:</span> <span class="t">ExamResultResponse</span>[];
-}</pre>
-    </div>
-
-    <!-- ── 1.2 Result View ── -->
-    <div id="dto-result-view"></div>
-    <h3 class="sub-heading">② Result View &amp; Print</h3>
-
-    <div id="dto-rv-req"></div>
-    <h4>Request DTOs — PHP</h4>
-
-    <div class="code-wrap">
-      <div class="code-label"><span>GET /api/results/candidate + PDF request</span><span class="lang">PHP 8.3</span></div>
-      <pre><span class="k">final readonly class</span> <span class="t">CandidateResultSearchRequest</span>
-{
-    <span class="k">public function</span> <span class="n">__construct</span>(
-        <span class="at">#[NotBlank]</span>
-        <span class="k">public</span> <span class="t">int</span>    <span class="n">$jobPostId</span>,
-
-        <span class="at">#[NotBlank, Date]</span>
-        <span class="k">public</span> <span class="t">string</span> <span class="n">$examDate</span>,
-
-        <span class="cm">// Exactly one of rollNo or cnic must be provided</span>
-        <span class="k">public</span> <span class="t">?string</span> <span class="n">$rollNo</span> = <span class="nu">null</span>,
-
-        <span class="at">#[Length(exactly: 15)]</span>
-        <span class="k">public</span> <span class="t">?string</span> <span class="n">$cnic</span> = <span class="nu">null</span>,
-
-        <span class="at">#[Choice(['full', 'masked'])]</span>
-        <span class="k">public</span> <span class="t">string</span>  <span class="n">$cnicDisplay</span> = <span class="s">'masked'</span>,
-    ) {}
-}
-
-<span class="k">final readonly class</span> <span class="t">ResultPDFRequest</span>
-{
-    <span class="k">public function</span> <span class="n">__construct</span>(
-        <span class="k">public</span> <span class="t">int</span>    <span class="n">$resultId</span>,
-
-        <span class="at">#[Choice(['official', 'unofficial'])]</span>
-        <span class="k">public</span> <span class="t">string</span> <span class="n">$printMode</span> = <span class="s">'unofficial'</span>,
-
-        <span class="k">public</span> <span class="t">bool</span>   <span class="n">$includeQR</span>    = <span class="nu">true</span>,
-        <span class="k">public</span> <span class="t">bool</span>   <span class="n">$includePhoto</span> = <span class="nu">false</span>,
-    ) {}
-}</pre>
-    </div>
-
-    <div id="dto-rv-res"></div>
-    <h4>Response DTOs — TypeScript (union discriminated on <code>resultType</code>)</h4>
-
-    <div class="code-wrap">
-      <div class="code-label"><span>src/types/results/resultView.ts</span><span class="lang">TypeScript</span></div>
-      <pre><span class="cm">// Union — component renders different layout based on resultType</span>
-<span class="kw">export type</span> <span class="t">CandidateResultResponse</span> =
-  <span class="op">|</span> <span class="t">CandidateResultDetailedResponse</span>
-  <span class="op">|</span> <span class="t">CandidateResultSummaryResponse</span>;
-
-<span class="kw">export interface</span> <span class="t">CandidateResultDetailedResponse</span> {
-  resultType<span class="op">:</span> <span class="s">'detailed'</span>;
-  caseNo<span class="op">:</span> <span class="t">string</span>;
-  postTitle<span class="op">:</span> <span class="t">string</span>;
-  examDate<span class="op">:</span> <span class="t">string</span>;
-  candidateName<span class="op">:</span> <span class="t">string</span>;
-  fatherHusbandName<span class="op">:</span> <span class="t">string</span>;
-  rollNo<span class="op">:</span> <span class="t">string</span>;
-  cnic<span class="op">:</span> <span class="t">string</span>;           <span class="cm">// masked or full per request</span>
-  photoUrl<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
-  subjects<span class="op">:</span> <span class="t">SubjectMarkResponse</span>[];
-  totalMaxMarks<span class="op">:</span> <span class="t">number</span>;
-  obtainedMarks<span class="op">:</span> <span class="t">number</span>;
-  percentage<span class="op">:</span> <span class="t">number</span>;
-  status<span class="op">:</span> <span class="s">'Pass'</span> <span class="op">|</span> <span class="s">'Fail'</span> <span class="op">|</span> <span class="s">'Absent'</span> <span class="op">|</span> <span class="s">'Withheld'</span>;
-  isPublished<span class="op">:</span> <span class="t">boolean</span>;
-  publishedAt<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
-  generatedAt<span class="op">:</span> <span class="t">string</span>;
-}
-
-<span class="kw">export interface</span> <span class="t">CandidateResultSummaryResponse</span> {
-  resultType<span class="op">:</span> <span class="s">'summary'</span>;
-  caseNo<span class="op">:</span> <span class="t">string</span>;
-  postTitle<span class="op">:</span> <span class="t">string</span>;
-  examDate<span class="op">:</span> <span class="t">string</span>;
-  candidateName<span class="op">:</span> <span class="t">string</span>;
-  fatherHusbandName<span class="op">:</span> <span class="t">string</span>;
-  rollNo<span class="op">:</span> <span class="t">string</span>;
-  cnic<span class="op">:</span> <span class="t">string</span>;
-  photoUrl<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
-  totalMaxMarks<span class="op">:</span> <span class="t">number</span>;
-  obtainedMarks<span class="op">:</span> <span class="t">number</span>;
-  status<span class="op">:</span> <span class="s">'Pass'</span> <span class="op">|</span> <span class="s">'Fail'</span> <span class="op">|</span> <span class="s">'Absent'</span> <span class="op">|</span> <span class="s">'Withheld'</span>;
-  isPublished<span class="op">:</span> <span class="t">boolean</span>;
-  publishedAt<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
-  generatedAt<span class="op">:</span> <span class="t">string</span>;
-}</pre>
-    </div>
-
-    <!-- ── 1.3 Award List ── -->
-    <div id="dto-award"></div>
-    <h3 class="sub-heading">③ Award List (Interview)</h3>
-
-    <div id="dto-award-req"></div>
-    <h4>Request DTOs — PHP</h4>
-
-    <div class="code-wrap">
-      <div class="code-label"><span>AwardEntryRequest — Part-A + Part-B marks</span><span class="lang">PHP 8.3</span></div>
-      <pre><span class="k">final readonly class</span> <span class="t">AwardEntryRequest</span>
-{
-    <span class="k">public function</span> <span class="n">__construct</span>(
-        <span class="at">#[NotBlank]</span> <span class="k">public</span> <span class="t">int</span>    <span class="n">$applicationId</span>,
-        <span class="at">#[NotBlank]</span> <span class="k">public</span> <span class="t">int</span>    <span class="n">$jobPostId</span>,
-        <span class="at">#[NotBlank, Length(max: 100)]</span>
-        <span class="k">public</span> <span class="t">string</span> <span class="n">$district</span>,
-        <span class="at">#[NotBlank, Date]</span> <span class="k">public</span> <span class="t">string</span> <span class="n">$interviewDate</span>,
-        <span class="at">#[NotBlank, Date]</span> <span class="k">public</span> <span class="t">string</span> <span class="n">$lastDocDate</span>,
-
-        <span class="cm">// ── Part-A: Educational Qualification (max 25 total) ──</span>
-        <span class="at">#[PositiveOrZero, LessThanOrEqual(25)]</span>
-        <span class="k">public</span> <span class="t">float</span> <span class="n">$marksMatric</span>       = <span class="nu">0</span>,
-        <span class="at">#[PositiveOrZero, LessThanOrEqual(25)]</span>
-        <span class="k">public</span> <span class="t">float</span> <span class="n">$marksIntermediate</span> = <span class="nu">0</span>,
-        <span class="at">#[PositiveOrZero, LessThanOrEqual(25)]</span>
-        <span class="k">public</span> <span class="t">float</span> <span class="n">$marksGraduation</span>   = <span class="nu">0</span>,
-        <span class="at">#[PositiveOrZero, LessThanOrEqual(25)]</span>
-        <span class="k">public</span> <span class="t">float</span> <span class="n">$marksMasters</span>      = <span class="nu">0</span>,
-        <span class="at">#[PositiveOrZero, LessThanOrEqual(25)]</span>
-        <span class="k">public</span> <span class="t">float</span> <span class="n">$marksAdditional</span>   = <span class="nu">0</span>,
-        <span class="at">#[PositiveOrZero, LessThanOrEqual(5)]</span>
-        <span class="k">public</span> <span class="t">float</span> <span class="n">$marksBuPosition</span>   = <span class="nu">0</span>,
-
-        <span class="cm">// ── Part-B: Interview Marks (max 30 total) ──</span>
-        <span class="at">#[PositiveOrZero, LessThanOrEqual(30)]</span>
-        <span class="k">public</span> <span class="t">float</span> <span class="n">$marksPakKashmir</span>   = <span class="nu">0</span>,
-        <span class="at">#[PositiveOrZero, LessThanOrEqual(30)]</span>
-        <span class="k">public</span> <span class="t">float</span> <span class="n">$marksIslamic</span>      = <span class="nu">0</span>,
-        <span class="at">#[PositiveOrZero, LessThanOrEqual(30)]</span>
-        <span class="k">public</span> <span class="t">float</span> <span class="n">$marksCurrentAff</span>   = <span class="nu">0</span>,
-
-        <span class="at">#[NotBlank, Choice(['selected','provisional','replacement','declined','absent','disqualified'])]</span>
-        <span class="k">public</span> <span class="t">string</span> <span class="n">$status</span> = <span class="s">'provisional'</span>,
-
-        <span class="k">public</span> <span class="t">?string</span> <span class="n">$remarks</span> = <span class="nu">null</span>,
-    ) {}
-}</pre>
-    </div>
-
-    <div id="dto-award-res"></div>
-    <h4>Response DTOs — TypeScript</h4>
-
-    <div class="code-wrap">
-      <div class="code-label"><span>src/types/results/awardList.ts</span><span class="lang">TypeScript</span></div>
-      <pre><span class="kw">export type</span> <span class="t">AwardStatus</span> =
-  <span class="op">|</span> <span class="s">'selected'</span> <span class="op">|</span> <span class="s">'provisional'</span> <span class="op">|</span> <span class="s">'replacement'</span>
-  <span class="op">|</span> <span class="s">'declined'</span> <span class="op">|</span> <span class="s">'absent'</span> <span class="op">|</span> <span class="s">'disqualified'</span>;
-
-<span class="kw">export interface</span> <span class="t">AwardRowResponse</span> {
-  id<span class="op">:</span> <span class="t">number</span>;
-  serialNo<span class="op">:</span> <span class="t">number</span>;
-  rollNo<span class="op">:</span> <span class="t">string</span>;
-  candidateName<span class="op">:</span> <span class="t">string</span>;
-  fatherHusbandName<span class="op">:</span> <span class="t">string</span>;
-  dob<span class="op">:</span> <span class="t">string</span>;                      <span class="cm">// dd-mm-yyyy</span>
-  <span class="cm">// Part-A</span>
-  marksMatric<span class="op">:</span> <span class="t">number</span>;  marksIntermediate<span class="op">:</span> <span class="t">number</span>;
-  marksGraduation<span class="op">:</span> <span class="t">number</span>;  marksMasters<span class="op">:</span> <span class="t">number</span>;
-  marksAdditional<span class="op">:</span> <span class="t">number</span>;  marksBuPosition<span class="op">:</span> <span class="t">number</span>;
-  partATotal<span class="op">:</span> <span class="t">number</span>;                <span class="cm">// computed, max 25</span>
-  <span class="cm">// Part-B</span>
-  marksPakKashmir<span class="op">:</span> <span class="t">number</span>;  marksIslamic<span class="op">:</span> <span class="t">number</span>;
-  marksCurrentAff<span class="op">:</span> <span class="t">number</span>;
-  partBTotal<span class="op">:</span> <span class="t">number</span>;                <span class="cm">// computed, max 30</span>
-  <span class="cm">// Final</span>
-  grandTotal<span class="op">:</span> <span class="t">number</span>;               <span class="cm">// computed, max 55</span>
-  meritRank<span class="op">:</span> <span class="t">number</span>;
-  status<span class="op">:</span> <span class="t">AwardStatus</span>;
-  replacedByRollNo<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
-  replacedOn<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
-  remarks<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
-  createdAt<span class="op">:</span> <span class="t">string</span>;  updatedAt<span class="op">:</span> <span class="t">string</span>;
-}
-
-<span class="kw">export interface</span> <span class="t">AwardListResponse</span> {
-  district<span class="op">:</span> <span class="t">string</span>;  postTitle<span class="op">:</span> <span class="t">string</span>;
-  department<span class="op">:</span> <span class="t">string</span>;  caseNo<span class="op">:</span> <span class="t">string</span>;
-  lastDocDate<span class="op">:</span> <span class="t">string</span>;  interviewDate<span class="op">:</span> <span class="t">string</span>;
-  candidates<span class="op">:</span> <span class="t">AwardRowResponse</span>[];
-  total<span class="op">:</span> <span class="t">number</span>;  page<span class="op">:</span> <span class="t">number</span>;  perPage<span class="op">:</span> <span class="t">number</span>;  lastPage<span class="op">:</span> <span class="t">number</span>;
-}</pre>
-    </div>
-
-    <!-- ── 1.4 Merit Rotation ── -->
-    <div id="dto-merit"></div>
-    <h3 class="sub-heading">④ Merit Rotation &amp; Replacement</h3>
-
-    <div class="code-wrap">
-      <div class="code-label"><span>AwardStatusChangeRequest + MeritReplacementRequest + Responses</span><span class="lang">PHP 8.3 + TypeScript</span></div>
-      <pre><span class="cm">// PHP — Request</span>
-<span class="k">final readonly class</span> <span class="t">AwardStatusChangeRequest</span>
-{
-    <span class="k">public function</span> <span class="n">__construct</span>(
-        <span class="at">#[NotBlank, Choice(['selected','provisional','replacement','declined','absent','disqualified'])]</span>
-        <span class="k">public</span> <span class="t">string</span> <span class="n">$newStatus</span>,
-
-        <span class="at">#[NotBlank, Length(min: 5, max: 500)]</span>
-        <span class="k">public</span> <span class="t">string</span> <span class="n">$reasonCode</span>,
-
-        <span class="k">public</span> <span class="t">?string</span> <span class="n">$notes</span> = <span class="nu">null</span>,
-    ) {}
-}
-
-<span class="k">final readonly class</span> <span class="t">MeritReplacementRequest</span>
-{
-    <span class="k">public function</span> <span class="n">__construct</span>(
-        <span class="k">public</span> <span class="t">?int</span>   <span class="n">$replacementAwardId</span> = <span class="nu">null</span>,   <span class="cm">// null = auto-pick next</span>
-
-        <span class="at">#[NotBlank, Choice(['OFFER_DECLINED','DOC_FAILED','NO_SHOW','DISQUALIFIED','OTHER'])]</span>
-        <span class="k">public</span> <span class="t">string</span> <span class="n">$reasonCode</span>,
-
-        <span class="at">#[Length(max: 500)]</span>
-        <span class="k">public</span> <span class="t">?string</span> <span class="n">$notes</span> = <span class="nu">null</span>,
-    ) {}
-}
-
-<span class="cm">// TypeScript — Response</span>
-<span class="kw">export interface</span> <span class="t">MeritAuditResponse</span> {
-  id<span class="op">:</span> <span class="t">number</span>;  awardId<span class="op">:</span> <span class="t">number</span>;
-  action<span class="op">:</span> <span class="s">'status_change'</span> <span class="op">|</span> <span class="s">'rank_change'</span> <span class="op">|</span> <span class="s">'replacement'</span>;
-  reasonCode<span class="op">:</span> <span class="t">string</span>;
-  oldRank<span class="op">:</span> <span class="t">number</span> <span class="op">|</span> <span class="t">null</span>;  newRank<span class="op">:</span> <span class="t">number</span> <span class="op">|</span> <span class="t">null</span>;
-  oldStatus<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;  newStatus<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
-  notes<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
-  performedBy<span class="op">:</span> <span class="t">UserSummary</span>;  performedAt<span class="op">:</span> <span class="t">string</span>;
-}
-
-<span class="kw">export interface</span> <span class="t">MeritReplacementResponse</span> {
-  replacedCandidate<span class="op">:</span> <span class="t">AwardRowResponse</span>;   <span class="cm">// updated status</span>
-  promotedCandidate<span class="op">:</span> <span class="t">AwardRowResponse</span>;   <span class="cm">// now selected/replacement</span>
-  auditEntry<span class="op">:</span> <span class="t">MeritAuditResponse</span>;
-}</pre>
-    </div>
-
-    <!-- ── 1.5 Publication ── -->
-    <div id="dto-publish"></div>
-    <h3 class="sub-heading">⑤ Result Publication</h3>
-
-    <div class="code-wrap">
-      <div class="code-label"><span>ResultPublishRequest + ResultPublicationResponse</span><span class="lang">PHP 8.3 + TypeScript</span></div>
-      <pre><span class="cm">// PHP — Request</span>
-<span class="k">final readonly class</span> <span class="t">ResultPublishRequest</span>
-{
-    <span class="k">public function</span> <span class="n">__construct</span>(
-        <span class="at">#[NotBlank]</span>
-        <span class="k">public</span> <span class="t">int</span>    <span class="n">$jobPostId</span>,
-
-        <span class="at">#[NotBlank, Choice(['written_test', 'interview', 'final_merit'])]</span>
-        <span class="k">public</span> <span class="t">string</span> <span class="n">$pubType</span>,
-
-        <span class="k">public</span> <span class="t">?string</span> <span class="n">$gazetteRef</span>       = <span class="nu">null</span>,
-        <span class="k">public</span> <span class="t">bool</span>   <span class="n">$notifyCandidates</span> = <span class="nu">false</span>,
-    ) {}
-}
-
-<span class="cm">// TypeScript — Response</span>
-<span class="kw">export type</span> <span class="t">PublicationType</span> = <span class="s">'written_test'</span> <span class="op">|</span> <span class="s">'interview'</span> <span class="op">|</span> <span class="s">'final_merit'</span>;
-<span class="kw">export type</span> <span class="t">PublicationStatus</span> = <span class="s">'draft'</span> <span class="op">|</span> <span class="s">'published'</span> <span class="op">|</span> <span class="s">'withdrawn'</span>;
-
-<span class="kw">export interface</span> <span class="t">ResultPublicationResponse</span> {
-  id<span class="op">:</span> <span class="t">number</span>;  jobPostId<span class="op">:</span> <span class="t">number</span>;
-  pubType<span class="op">:</span> <span class="t">PublicationType</span>;
-  status<span class="op">:</span> <span class="t">PublicationStatus</span>;
-  gazetteRef<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
-  publishedBy<span class="op">:</span> <span class="t">UserSummary</span> <span class="op">|</span> <span class="t">null</span>;  publishedAt<span class="op">:</span> <span class="t">string</span> <span class="op">|</span> <span class="t">null</span>;
-  createdAt<span class="op">:</span> <span class="t">string</span>;
-  notificationsSent<span class="op">:</span> <span class="t">number</span> <span class="op">|</span> <span class="t">null</span>;
-  notificationsFailed<span class="op">:</span> <span class="t">number</span> <span class="op">|</span> <span class="t">null</span>;
-}</pre>
-    </div>
-
-    <!-- ── Shared Types ── -->
-    <div id="dto-shared"></div>
-    <h3 class="sub-heading">Shared Types</h3>
-
-    <div class="code-wrap">
-      <div class="code-label"><span>src/types/shared.ts</span><span class="lang">TypeScript</span></div>
-      <pre><span class="kw">export interface</span> <span class="t">UserSummary</span> {
-  id<span class="op">:</span> <span class="t">number</span>;
-  name<span class="op">:</span> <span class="t">string</span>;
-  role<span class="op">:</span> <span class="t">string</span>;
-}
-
-<span class="kw">export interface</span> <span class="t">PaginatedResponse</span>&lt;<span class="t">T</span>&gt; {
-  data<span class="op">:</span> <span class="t">T</span>[];
-  total<span class="op">:</span> <span class="t">number</span>;  page<span class="op">:</span> <span class="t">number</span>;  perPage<span class="op">:</span> <span class="t">number</span>;  lastPage<span class="op">:</span> <span class="t">number</span>;
-}
-
-<span class="kw">export interface</span> <span class="t">ApiError</span> {
-  message<span class="op">:</span> <span class="t">string</span>;
-  errors<span class="op">?:</span> <span class="t">Record</span>&lt;<span class="t">string</span>, <span class="t">string</span>[]&gt;;
-  code<span class="op">?:</span> <span class="t">string</span>;
-}</pre>
+    <h3 class="sub-heading">Component Interaction</h3>
+    <div class="info-box">
+      <strong>Frontend:</strong> CandidatesMarksPage → CandidatesMarksTable (TanStack) → MarkEntryDialog (hierarchical form)<br/>
+      <strong>Backend:</strong> CandidateListService (pagination) → MarkService (save/edit) → MarksStatusService (calculate status)<br/>
+      <strong>Database:</strong> exam_results, mark_edits (approval workflow), import_batches (CSV tracking)
     </div>
   </section>
 
-  <hr/>
-
-  <!-- ══════════════════════════════════════════════
-       SECTION 2 — USER JOURNEYS
-  ══════════════════════════════════════════════ -->
-  <section class="section-uj">
-    <h2 class="section-heading" id="user-journeys">
-      <span class="section-num" style="background:var(--green)">2</span>
-      User Journeys
+  <!-- ============ V2.0 ENHANCEMENTS ============ -->
+  <section id="v2-changes">
+    <h2 class="section-heading" style="background: #f5f3ff; --bs-bg-opacity: .3; padding: 10px; border-radius: 6px;">
+      <span class="section-num" style="background: var(--purple);">3</span>
+      v2.0 Enhancements: New User Stories &amp; Use Cases
     </h2>
 
-    <!-- Actors table -->
-    <h3 class="sub-heading">Actors</h3>
-    <div class="tbl-wrap">
+    <!-- UC-R01a -->
+    <div id="uc-r01a" class="uc-box">
+      <div class="uc-header">
+        <span class="uc-id">UC-R01a</span>
+        <span class="uc-title">View Candidates Table with Advanced Filtering</span>
+        <span class="uc-actor">Data Entry Officer / Results Admin</span>
+        <span class="new-badge">NEW</span>
+      </div>
+      <div class="uc-body">
+        <div class="uc-meta">
+          <div class="uc-meta-item"><div class="uc-meta-label">Priority</div><div class="uc-meta-val">P0</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Actor Goal</div><div class="uc-meta-val">View all eligible candidates for a job in a paginated, filterable table with virtual scrolling for 5000+ candidates</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Tech Stack</div><div class="uc-meta-val">TanStack Table v8 + react-virtual for virtual scrolling</div></div>
+        </div>
+
+        <h4>Acceptance Criteria</h4>
+        <ul>
+          <li>✅ Table displays: Roll Number, Candidate ID, Name, Enrollment Status, Exam Center, Marks Status</li>
+          <li>✅ Filters available: Search (roll/name/ID), Enrollment Status, Exam Center, Marks Completion Status</li>
+          <li>✅ Virtual scrolling handles 5000+ rows without performance degradation</li>
+          <li>✅ Marks visible in-table with hover tooltip preview (e.g., "Written: 85/100, Viva: 18/20, Interview: 28/30")</li>
+          <li>✅ Table remembers filter state during session</li>
+          <li>✅ Pagination via keyset cursor (not offset)</li>
+          <li>✅ First page load &lt; 200ms, pagination next &lt; 100ms</li>
+        </ul>
+
+        <h4 style="margin-top: 16px;">Main Flow</h4>
+        <ol class="flow-list">
+          <li><span class="step-num">1</span>User selects a job/exam from dropdown</li>
+          <li><span class="step-num">2</span>System loads first page (50 candidates) via GET /candidates</li>
+          <li><span class="step-num">3</span>Table displays with virtual scrolling enabled</li>
+          <li><span class="step-num">4</span>User scrolls → System auto-loads next page (cursor-based pagination)</li>
+          <li><span class="step-num">5</span>User applies filters (search, status, exam center) → Table resets to page 1</li>
+          <li><span class="step-num">6</span>User hovers over marks cell → Tooltip shows breakdown by section</li>
+          <li><span class="step-num">7</span>User clicks "Add/Edit Marks" button → Opens MarkEntryDialog</li>
+        </ol>
+
+        <h4 style="margin-top: 16px;">Data Flow: GET /api/v1/results/{jobPostId}/candidates</h4>
+        <div class="api-endpoint">
+          <span class="method-get">GET</span> /api/v1/results/{jobPostId}/candidates?limit=50&cursor=...&search=...&enrollment_status=...&exam_center=...&marks_status=...
+        </div>
+        <p><strong>Response:</strong> Array of candidates with pagination metadata (total, has_more, next_cursor)</p>
+      </div>
+    </div>
+
+    <!-- UC-R01b -->
+    <div id="uc-r01b" class="uc-box">
+      <div class="uc-header">
+        <span class="uc-id">UC-R01b</span>
+        <span class="uc-title">Add/Edit Exam Marks via Dialog Form</span>
+        <span class="uc-actor">Data Entry Officer</span>
+        <span class="new-badge">NEW</span>
+      </div>
+      <div class="uc-body">
+        <div class="uc-meta">
+          <div class="uc-meta-item"><div class="uc-meta-label">Priority</div><div class="uc-meta-val">P0</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Actor Goal</div><div class="uc-meta-val">Enter hierarchical exam marks (main exam + sub-sections: Written, Viva, Interview) with client-side validation</div></div>
+        </div>
+
+        <h4>Acceptance Criteria</h4>
+        <ul>
+          <li>✅ Dialog captures: Exam Date, Exam Center (dropdown), hierarchical mark sections</li>
+          <li>✅ Sub-sections displayed: Written (100), Viva (20), Interview (30) — each with obtained/total</li>
+          <li>✅ Client-side validation: obtained ≤ total per section, numeric values only</li>
+          <li>✅ Real-time percentage calculation for each section and total</li>
+          <li>✅ Save updates candidate record and refreshes table immediately</li>
+          <li>✅ Marks Status updates to complete/partial based on section completeness</li>
+          <li>✅ If editing existing marks: show "Reason for Correction" field (required, min 10 chars)</li>
+        </ul>
+
+        <h4 style="margin-top: 16px;">Form Structure</h4>
+        <div class="code-wrap">
+          <div class="code-label"><span class="lang">JavaScript</span></div>
+          <pre><span class="k">const</span> formData = {
+  exam_date: <span class="s">''</span>,
+  exam_center: <span class="s">''</span>,
+  marks: {
+    written: { obtained: <span class="s">''</span>, total: <span class="nu">100</span> },
+    viva: { obtained: <span class="s">''</span>, total: <span class="nu">20</span> },
+    interview: { obtained: <span class="s">''</span>, total: <span class="nu">30</span> }
+  },
+  reason: <span class="s">''</span>  <span class="cm">// Only if editing</span>
+};</span></pre>
+        </div>
+
+        <h4 style="margin-top: 16px;">Validation Rules (Client + Server)</h4>
+        <ul>
+          <li>exam_date: Required, must be valid date</li>
+          <li>exam_center: Required, must match available centers</li>
+          <li>obtained_marks: Must be numeric, ≥ 0, ≤ total_marks</li>
+          <li>reason (if edit): Required, min 10 characters, max 500</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- UC-R01c -->
+    <div id="uc-r01c" class="uc-box">
+      <div class="uc-header">
+        <span class="uc-id">UC-R01c</span>
+        <span class="uc-title">Edit Marks with Approval Workflow</span>
+        <span class="uc-actor">Data Entry Officer / Results Admin</span>
+        <span class="new-badge">NEW</span>
+      </div>
+      <div class="uc-body">
+        <div class="uc-meta">
+          <div class="uc-meta-item"><div class="uc-meta-label">Priority</div><div class="uc-meta-val">P1</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Actor Goal</div><div class="uc-meta-val">Edit previously saved marks with mandatory reason/note; changes move to Pending Review status and require Results Admin approval</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Approval Authority</div><div class="uc-meta-val">Results Admin or higher role</div></div>
+        </div>
+
+        <h4>Acceptance Criteria</h4>
+        <ul>
+          <li>✅ Edit dialog shows "Reason for Correction" field (required, min 10 chars)</li>
+          <li>✅ User submits edit → Backend creates mark_edits record</li>
+          <li>✅ Candidate marks_status changes to <code>pending_review</code></li>
+          <li>✅ Toast message: "Mark changes submitted for approval"</li>
+          <li>✅ Results Admin receives notification of pending approval</li>
+          <li>✅ Results Admin can approve or reject via PUT /marks-edits/{editId}/approve</li>
+          <li>✅ Audit log captures: old marks, new marks, reason, approver, timestamp</li>
+        </ul>
+
+        <h4 style="margin-top: 16px;">Approval Endpoint</h4>
+        <div class="api-endpoint">
+          <span class="method-put">PUT</span> /api/v1/results/{jobPostId}/marks-edits/{editId}/approve
+        </div>
+        <div class="code-wrap">
+          <div class="code-label"><span class="lang">JSON</span></div>
+          <pre>{
+  <span class="s">"approved"</span>: <span class="k">true</span> | <span class="k">false</span>,
+  <span class="s">"approval_reason"</span>: <span class="s">"Optional notes"</span>
+}</pre>
+        </div>
+
+        <h4 style="margin-top: 16px;">State Machine</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>From Status</th>
+              <th>To Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>New entry</td>
+              <td>incomplete</td>
+              <td>complete</td>
+              <td>Auto-save (Data Entry Officer)</td>
+            </tr>
+            <tr>
+              <td>Edit existing</td>
+              <td>complete</td>
+              <td>pending_review</td>
+              <td>Requires reason, awaits approval</td>
+            </tr>
+            <tr>
+              <td>Approve</td>
+              <td>pending_review</td>
+              <td>complete</td>
+              <td>Results Admin approves</td>
+            </tr>
+            <tr>
+              <td>Reject</td>
+              <td>pending_review</td>
+              <td>complete (reverted)</td>
+              <td>Results Admin rejects, original marks restored</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- UC-R02a -->
+    <div id="uc-r02a" class="uc-box">
+      <div class="uc-header">
+        <span class="uc-id">UC-R02a</span>
+        <span class="uc-title">Download Pre-filled CSV Template</span>
+        <span class="uc-actor">Data Entry Officer</span>
+        <span class="new-badge">NEW</span>
+      </div>
+      <div class="uc-body">
+        <div class="uc-meta">
+          <div class="uc-meta-item"><div class="uc-meta-label">Priority</div><div class="uc-meta-val">P0</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Actor Goal</div><div class="uc-meta-val">Download a pre-filled CSV with all eligible candidates + standard fields so they can bulk-add marks in Excel and re-upload</div></div>
+        </div>
+
+        <h4>Acceptance Criteria</h4>
+        <ul>
+          <li>✅ CSV filename: [JobTitle]_[ExamDate]_marks_template.csv</li>
+          <li>✅ Columns: Roll Number, Candidate ID, Full Name, Enrollment Status, Job Title, Exam Center, Total Marks, [Sub-section Obtained Columns]</li>
+          <li>✅ Pre-filled rows with all enrolled candidates (sorted by roll number)</li>
+          <li>✅ User fills in obtained marks columns, saves, and re-uploads</li>
+          <li>✅ CSV includes timestamp in file metadata</li>
+          <li>✅ File size optimized (no unnecessary columns)</li>
+        </ul>
+
+        <h4 style="margin-top: 16px;">Sample CSV Output</h4>
+        <div class="code-wrap">
+          <div class="code-label"><span class="lang">CSV</span></div>
+          <pre>Roll Number,Candidate ID,Full Name,Enrollment Status,Job Title,Exam Center,Written Max,Written Obtained,Viva Max,Viva Obtained,Interview Max,Interview Obtained
+A-001,C-12345,Ahmed Ali,enrolled,Assistant Commissioner,Muzaffarabad,100,,20,,30,
+A-002,C-12346,Fatima Khan,enrolled,Assistant Commissioner,Muzaffarabad,100,,20,,30,
+A-003,C-12347,Ali Hassan,enrolled,Assistant Commissioner,Muzaffarabad,100,,20,,30,</pre>
+        </div>
+
+        <h4 style="margin-top: 16px;">Endpoint</h4>
+        <div class="api-endpoint">
+          <span class="method-get">GET</span> /api/v1/results/{jobPostId}/csv-template
+        </div>
+        <p><strong>Returns:</strong> CSV file (attachment, not JSON)</p>
+      </div>
+    </div>
+
+    <!-- UC-R02b -->
+    <div id="uc-r02b" class="uc-box">
+      <div class="uc-header">
+        <span class="uc-id">UC-R02b</span>
+        <span class="uc-title">Upload & Preview Marks from CSV</span>
+        <span class="uc-actor">Data Entry Officer</span>
+        <span class="new-badge">ENHANCED</span>
+      </div>
+      <div class="uc-body">
+        <div class="uc-meta">
+          <div class="uc-meta-item"><div class="uc-meta-label">Priority</div><div class="uc-meta-val">P0</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Actor Goal</div><div class="uc-meta-val">Upload CSV with completed marks, preview data to be imported, and confirm import with validation safeguards</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Security</div><div class="uc-meta-val">file_hash prevents tampering between preview and confirm</div></div>
+        </div>
+
+        <h4>Acceptance Criteria</h4>
+        <ul>
+          <li>✅ File upload accepts .csv (max 50MB)</li>
+          <li>✅ CSV validation checks: Required columns present, marks numeric, obtained ≤ total, roll numbers match enrolled candidates</li>
+          <li>✅ Preview screen shows first 50 rows of valid data + summary of errors</li>
+          <li>✅ Error rows highlight specific field errors (e.g., "Viva marks 25 exceeds max 20")</li>
+          <li>✅ User can skip invalid rows or correct and re-upload</li>
+          <li>✅ User must confirm import before database save</li>
+          <li>✅ Success message shows "450 marks imported, 2 skipped due to errors"</li>
+          <li>✅ All imported rows tagged with import_batch_id for traceability</li>
+        </ul>
+
+        <h4 style="margin-top: 16px;">Two-Step Flow: Preview → Confirm</h4>
+
+        <h5>Step 1: Preview (POST with dry_run=true)</h5>
+        <div class="api-endpoint">
+          <span class="method-post">POST</span> /api/v1/results/{jobPostId}/marks-import/preview
+        </div>
+        <div class="code-wrap">
+          <div class="code-label"><span class="lang">JSON</span></div>
+          <pre>{
+  <span class="s">"file"</span>: <span class="s">"&lt;CSV content&gt;"</span>,
+  <span class="s">"dry_run"</span>: <span class="k">true</span>
+}
+
+<span class="cm">// Response includes file_hash for confirmation step</span>
+{
+  <span class="s">"valid_rows"</span>: [ <span class="cm">/* first 50 rows */</span> ],
+  <span class="s">"error_rows"</span>: [ <span class="cm">/* rows with errors */</span> ],
+  <span class="s">"file_hash"</span>: <span class="s">"sha256:abc123def456"</span>,
+  <span class="s">"summary"</span>: {
+    <span class="s">"total_rows"</span>: <span class="nu">100</span>,
+    <span class="s">"valid_rows"</span>: <span class="nu">97</span>,
+    <span class="s">"error_rows"</span>: <span class="nu">3</span>,
+    <span class="s">"will_import"</span>: <span class="nu">97</span>
+  }
+}</span></pre>
+        </div>
+
+        <h5>Step 2: Confirm (POST with file_hash)</h5>
+        <div class="api-endpoint">
+          <span class="method-post">POST</span> /api/v1/results/{jobPostId}/marks-import/confirm
+        </div>
+        <div class="code-wrap">
+          <div class="code-label"><span class="lang">JSON</span></div>
+          <pre>{
+  <span class="s">"file_hash"</span>: <span class="s">"sha256:abc123def456"</span>,
+  <span class="s">"skip_invalid_rows"</span>: <span class="k">true</span>
+}
+
+<span class="cm">// Response</span>
+{
+  <span class="s">"success"</span>: <span class="k">true</span>,
+  <span class="s">"imported"</span>: <span class="nu">97</span>,
+  <span class="s">"skipped"</span>: <span class="nu">3</span>,
+  <span class="s">"message"</span>: <span class="s">"97 marks imported, 3 skipped due to errors"</span>,
+  <span class="s">"batch_id"</span>: <span class="s">"import-batch-20250511-001"</span>
+}</span></pre>
+        </div>
+
+        <h4 style="margin-top: 16px;">Security Model</h4>
+        <div class="warning-box">
+          <strong>file_hash prevents tampering:</strong> Preview calculates SHA256 of file content. Confirm endpoint validates the hash matches stored preview, preventing "swap file mid-confirmation" attacks. Preview cached for 30 minutes.
+        </div>
+      </div>
+    </div>
+
+    <!-- UC-R02c -->
+    <div id="uc-r02c" class="uc-box">
+      <div class="uc-header">
+        <span class="uc-id">UC-R02c</span>
+        <span class="uc-title">Track Marks Completion Status</span>
+        <span class="uc-actor">Data Entry Officer / Results Admin</span>
+        <span class="new-badge">NEW</span>
+      </div>
+      <div class="uc-body">
+        <div class="uc-meta">
+          <div class="uc-meta-item"><div class="uc-meta-label">Priority</div><div class="uc-meta-val">P0</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Actor Goal</div><div class="uc-meta-val">See a "Marks Status" column in the candidates table showing Complete/Incomplete/Partial/Pending Review to quickly identify which candidates need attention</div></div>
+        </div>
+
+        <h4>Acceptance Criteria</h4>
+        <ul>
+          <li>✅ <code>complete</code>: All sub-sections (written, viva, interview) have obtained_marks recorded</li>
+          <li>✅ <code>partial</code>: Some sub-sections have marks, others are empty</li>
+          <li>✅ <code>incomplete</code>: No marks recorded for any section</li>
+          <li>✅ <code>pending_review</code>: Marks were edited and awaiting admin approval</li>
+          <li>✅ Status updates automatically after CSV upload or dialog save</li>
+          <li>✅ Filter by status available in table filters (multi-select)</li>
+          <li>✅ Status badge color-coded for quick visual scanning</li>
+        </ul>
+
+        <h4 style="margin-top: 16px;">Status Calculation Logic (Backend)</h4>
+        <div class="code-wrap">
+          <div class="code-label"><span class="lang">PHP</span></div>
+          <pre><span class="k">function</span> calculateMarksStatus($candidateId, $jobPostId) {
+  $examResults = ExamResult::where(<span class="s">'candidate_id'</span>, $candidateId)
+    -&gt;where(<span class="s">'job_post_id'</span>, $jobPostId)
+    -&gt;get();
+
+  <span class="cm">// 1. Check if any marks pending approval</span>
+  if ($examResults-&gt;contains(fn($r) =&gt; $r-&gt;pending_review === <span class="k">true</span>)) {
+    <span class="k">return</span> <span class="s">'pending_review'</span>;
+  }
+
+  <span class="cm">// 2. Count filled sections</span>
+  $totalSections = ExamSubjectTemplate::where(<span class="s">'job_post_id'</span>, $jobPostId)-&gt;count();
+  $filledSections = $examResults-&gt;filter(fn($r) =&gt; $r-&gt;obtained_marks !== <span class="k">null</span>)-&gt;count();
+
+  if ($filledSections === <span class="nu">0</span>) <span class="k">return</span> <span class="s">'incomplete'</span>;
+  if ($filledSections === $totalSections) <span class="k">return</span> <span class="s">'complete'</span>;
+  <span class="k">return</span> <span class="s">'partial'</span>;
+}</span></pre>
+        </div>
+
+        <h4 style="margin-top: 16px;">Status Badge Styling</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Color</th>
+              <th>Icon</th>
+              <th>User Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>incomplete</code></td>
+              <td>Red</td>
+              <td>⚠️</td>
+              <td>Click "Add Marks"</td>
+            </tr>
+            <tr>
+              <td><code>partial</code></td>
+              <td>Amber</td>
+              <td>📋</td>
+              <td>Click "Complete Marks"</td>
+            </tr>
+            <tr>
+              <td><code>complete</code></td>
+              <td>Green</td>
+              <td>✅</td>
+              <td>Click "Edit Marks" if needed</td>
+            </tr>
+            <tr>
+              <td><code>pending_review</code></td>
+              <td>Blue</td>
+              <td>⏳</td>
+              <td>Awaiting admin approval</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============ BACKEND APIS ============ -->
+  <section id="api-backend">
+    <h2 class="section-heading" style="background: #eff6ff; --bs-bg-opacity: .3; padding: 10px; border-radius: 6px;">
+      <span class="section-num" style="background: var(--blue);">4</span>
+      Backend API Specifications (v2.0)
+    </h2>
+
+    <!-- GET /candidates -->
+    <div id="api-candidates">
+      <h3 class="sub-heading">Candidates List: GET /api/v1/results/{jobPostId}/candidates</h3>
+
+      <h4>Purpose</h4>
+      <p>Fetch paginated, filtered candidate list for marks entry table with virtual scrolling. Uses keyset pagination for efficient handling of 5000+ candidates.</p>
+
+      <h4>Query Parameters</h4>
       <table>
-        <thead><tr><th>Actor</th><th>Role Description</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Required</th>
+            <th>Description</th>
+          </tr>
+        </thead>
         <tbody>
-          <tr><td>Data Entry Officer</td><td>PSC staff responsible for keying in exam results post-test</td></tr>
-          <tr><td>Results Admin</td><td>Senior PSC staff who reviews, corrects, and manages result records</td></tr>
-          <tr><td>Interview Secretary</td><td>Staff managing the interview panel's award list</td></tr>
-          <tr><td>Senior Admin</td><td>Decision-maker who authorises merit rotations and replacements</td></tr>
-          <tr><td>Publication Officer</td><td>Staff who controls when results go live on the portal</td></tr>
+          <tr>
+            <td><code>limit</code></td>
+            <td>int</td>
+            <td>No (default 50)</td>
+            <td>Items per page (max 200)</td>
+          </tr>
+          <tr>
+            <td><code>cursor</code></td>
+            <td>string</td>
+            <td>No</td>
+            <td>Opaque cursor from previous response (keyset pagination)</td>
+          </tr>
+          <tr>
+            <td><code>sort_by</code></td>
+            <td>enum</td>
+            <td>No (default roll_number)</td>
+            <td>roll_number | full_name | enrollment_status | exam_center | marks_status</td>
+          </tr>
+          <tr>
+            <td><code>sort_direction</code></td>
+            <td>enum</td>
+            <td>No (default asc)</td>
+            <td>asc | desc</td>
+          </tr>
+          <tr>
+            <td><code>search</code></td>
+            <td>string</td>
+            <td>No</td>
+            <td>Search roll_number, full_name, candidate_id (full-text)</td>
+          </tr>
+          <tr>
+            <td><code>enrollment_status</code></td>
+            <td>array</td>
+            <td>No</td>
+            <td>enrolled | pending | rejected</td>
+          </tr>
+          <tr>
+            <td><code>exam_center</code></td>
+            <td>array</td>
+            <td>No</td>
+            <td>Exact match on exam center name</td>
+          </tr>
+          <tr>
+            <td><code>marks_status</code></td>
+            <td>array</td>
+            <td>No</td>
+            <td>complete | partial | incomplete | pending_review</td>
+          </tr>
+          <tr>
+            <td><code>include_marks</code></td>
+            <td>bool</td>
+            <td>No (default false)</td>
+            <td>Include detailed marks_summary (slower, use sparingly)</td>
+          </tr>
+          <tr>
+            <td><code>include_audit_log</code></td>
+            <td>bool</td>
+            <td>No (default false)</td>
+            <td>Include last_edit_by and last_edit_at</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4>Response Example</h4>
+      <div class="code-wrap">
+        <div class="code-label"><span class="lang">JSON</span></div>
+        <pre>{
+  <span class="s">"success"</span>: <span class="k">true</span>,
+  <span class="s">"data"</span>: [
+    {
+      <span class="s">"id"</span>: <span class="nu">1</span>,
+      <span class="s">"roll_number"</span>: <span class="s">"A-001"</span>,
+      <span class="s">"candidate_id"</span>: <span class="s">"C-12345"</span>,
+      <span class="s">"full_name"</span>: <span class="s">"Ahmed Ali"</span>,
+      <span class="s">"enrollment_status"</span>: <span class="s">"enrolled"</span>,
+      <span class="s">"exam_center"</span>: <span class="s">"Muzaffarabad Center"</span>,
+      <span class="s">"marks_status"</span>: <span class="s">"complete"</span>,
+      <span class="s">"marks_summary"</span>: {
+        <span class="s">"written"</span>: { <span class="s">"total"</span>: <span class="nu">100</span>, <span class="s">"obtained"</span>: <span class="nu">85</span> },
+        <span class="s">"viva"</span>: { <span class="s">"total"</span>: <span class="nu">20</span>, <span class="s">"obtained"</span>: <span class="nu">18</span> },
+        <span class="s">"interview"</span>: { <span class="s">"total"</span>: <span class="nu">30</span>, <span class="s">"obtained"</span>: <span class="nu">28</span> }
+      }
+    }
+  ],
+  <span class="s">"pagination"</span>: {
+    <span class="s">"total"</span>: <span class="nu">5000</span>,
+    <span class="s">"limit"</span>: <span class="nu">50</span>,
+    <span class="s">"returned"</span>: <span class="nu">50</span>,
+    <span class="s">"has_more"</span>: <span class="k">true</span>,
+    <span class="s">"next_cursor"</span>: <span class="s">"eyJpZCI6NTAsInJvbGxfbnVtYmVyIjoiQS01MCJ9"</span>
+  },
+  <span class="s">"filters_applied"</span>: {
+    <span class="s">"search"</span>: <span class="s">"Ahmed"</span>,
+    <span class="s">"enrollment_status"</span>: [<span class="s">"enrolled"</span>],
+    <span class="s">"exam_center"</span>: [<span class="s">"Muzaffarabad"</span>],
+    <span class="s">"marks_status"</span>: [<span class="s">"complete"</span>]
+  }
+}</span></pre>
+      </div>
+
+      <h4>Performance Targets</h4>
+      <ul>
+        <li>First page load (50 rows): &lt; 200ms</li>
+        <li>Keyset pagination next: &lt; 100ms</li>
+        <li>Filtered search: &lt; 500ms</li>
+      </ul>
+    </div>
+
+    <!-- PUT /marks -->
+    <div id="api-marks">
+      <h3 class="sub-heading">Save Marks: PUT /api/v1/results/{jobPostId}/candidates/{candidateId}/marks</h3>
+
+      <h4>Purpose</h4>
+      <p>Save or update exam marks for a candidate. Unified endpoint for both new entries (auto-save) and edits (approval workflow).</p>
+
+      <h4>Request Body</h4>
+      <div class="code-wrap">
+        <div class="code-label"><span class="lang">JSON</span></div>
+        <pre>{
+  <span class="s">"exam_date"</span>: <span class="s">"2025-05-10"</span>,
+  <span class="s">"exam_center"</span>: <span class="s">"Muzaffarabad Center"</span>,
+  <span class="s">"sections"</span>: [
+    { <span class="s">"section_key"</span>: <span class="s">"written"</span>, <span class="s">"obtained"</span>: <span class="nu">85</span> },
+    { <span class="s">"section_key"</span>: <span class="s">"viva"</span>, <span class="s">"obtained"</span>: <span class="nu">18</span> },
+    { <span class="s">"section_key"</span>: <span class="s">"interview"</span>, <span class="s">"obtained"</span>: <span class="nu">28</span> }
+  ],
+  <span class="s">"edit_reason"</span>: <span class="s">"Viva marks recalculated"</span>  <span class="cm">// Only if editing existing marks</span>
+}</span></pre>
+      </div>
+
+      <h4>Response: New Entry</h4>
+      <div class="code-wrap">
+        <div class="code-label"><span class="lang">JSON</span></div>
+        <pre>{
+  <span class="s">"success"</span>: <span class="k">true</span>,
+  <span class="s">"message"</span>: <span class="s">"Marks saved successfully"</span>,
+  <span class="s">"data"</span>: {
+    <span class="s">"candidate_id"</span>: <span class="nu">1</span>,
+    <span class="s">"marks_status"</span>: <span class="s">"complete"</span>,
+    <span class="s">"marks_summary"</span>: { <span class="cm">/* ... */</span> }
+  }
+}</span></pre>
+      </div>
+
+      <h4>Response: Edit Pending Approval</h4>
+      <div class="code-wrap">
+        <div class="code-label"><span class="lang">JSON</span></div>
+        <pre>{
+  <span class="s">"success"</span>: <span class="k">true</span>,
+  <span class="s">"message"</span>: <span class="s">"Mark changes submitted for approval"</span>,
+  <span class="s">"data"</span>: {
+    <span class="s">"candidate_id"</span>: <span class="nu">1</span>,
+    <span class="s">"marks_status"</span>: <span class="s">"pending_review"</span>,
+    <span class="s">"edit_id"</span>: <span class="nu">42</span>,
+    <span class="s">"approval_pending"</span>: <span class="k">true</span>
+  }
+}</span></pre>
+      </div>
+
+      <h4>Validation Rules (Server-Side)</h4>
+      <ul>
+        <li>exam_date: Required, valid date format (YYYY-MM-DD)</li>
+        <li>exam_center: Required, must match available centers for job</li>
+        <li>obtained_marks: Must be numeric, ≥ 0, ≤ max_marks from ExamSubjectTemplate</li>
+        <li>edit_reason (if edit): Required, min 10 characters, max 500</li>
+        <li>Roll number must be enrolled for the job</li>
+      </ul>
+
+      <h4>Authorization</h4>
+      <ul>
+        <li>Required role: data_entry_officer+</li>
+        <li>Edit approval only available to: results_admin+</li>
+      </ul>
+    </div>
+
+    <!-- CSV Endpoints -->
+    <div id="api-csv">
+      <h3 class="sub-heading">CSV Operations</h3>
+
+      <h5>1. Download Template: GET /api/v1/results/{jobPostId}/csv-template</h5>
+      <div class="api-endpoint">
+        <span class="method-get">GET</span> /api/v1/results/{jobPostId}/csv-template
+      </div>
+      <p><strong>Returns:</strong> CSV file attachment (Content-Type: text/csv)</p>
+      <p><strong>Filename:</strong> [JobTitle]_[ExamDate]_marks_template.csv</p>
+
+      <h5>2. Preview Import: POST /api/v1/results/{jobPostId}/marks-import/preview</h5>
+      <div class="api-endpoint">
+        <span class="method-post">POST</span> /api/v1/results/{jobPostId}/marks-import/preview
+      </div>
+      <p><strong>Request:</strong> FormData with file + dry_run=true</p>
+      <p><strong>Response:</strong> Preview with valid/error rows + file_hash (cached 30 min)</p>
+
+      <h5>3. Confirm Import: POST /api/v1/results/{jobPostId}/marks-import/confirm</h5>
+      <div class="api-endpoint">
+        <span class="method-post">POST</span> /api/v1/results/{jobPostId}/marks-import/confirm
+      </div>
+      <p><strong>Request:</strong> { file_hash, skip_invalid_rows }</p>
+      <p><strong>Response:</strong> { imported, skipped, batch_id }</p>
+    </div>
+
+    <!-- Pagination Strategy -->
+    <div id="api-pagination">
+      <h3 class="sub-heading">Pagination Strategy: Keyset (Cursor-Based)</h3>
+
+      <h4>Why Keyset Pagination?</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Aspect</th>
+            <th>Offset Pagination</th>
+            <th>Keyset Pagination</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Query Performance</td>
+            <td>O(n) - scans to skip</td>
+            <td>O(1) - direct lookup ✅</td>
+          </tr>
+          <tr>
+            <td>Consistency</td>
+            <td>Duplicates on data change</td>
+            <td>Guaranteed consistency ✅</td>
+          </tr>
+          <tr>
+            <td>Scalability</td>
+            <td>Slow at page 100+</td>
+            <td>Constant speed ✅</td>
+          </tr>
+          <tr>
+            <td>Implementation Complexity</td>
+            <td>Simple</td>
+            <td>Moderate (but worth it)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4>How It Works</h4>
+      <ol>
+        <li><strong>First request:</strong> Client calls GET /candidates without cursor</li>
+        <li><strong>Response includes:</strong> 50 rows + next_cursor (base64-encoded)</li>
+        <li><strong>Next page:</strong> Client passes cursor back → Server positions at cursor and fetches next 50</li>
+        <li><strong>No gaps or duplicates:</strong> Even if rows are deleted mid-pagination, keyset naturally skips them</li>
+      </ol>
+
+      <h4>Cursor Format (Opaque to Client)</h4>
+      <p><code>eyJpZCI6NTAsInJvbGxfbnVtYmVyIjoiQS01MCJ9</code> = base64({ id: 50, roll_number: "A-50" })</p>
+
+      <h4>Edge Cases</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Scenario</th>
+            <th>Handling</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Invalid/expired cursor</td>
+            <td>Return 400: "Cursor expired. Start from first page."</td>
+          </tr>
+          <tr>
+            <td>Filter changed mid-pagination</td>
+            <td>Cursor becomes incompatible; reset to page 1</td>
+          </tr>
+          <tr>
+            <td>Sort order changed</td>
+            <td>Same as above; new sort order invalidates cursor</td>
+          </tr>
+          <tr>
+            <td>limit > 200</td>
+            <td>Return 422: "Limit must be ≤ 200"</td>
+          </tr>
         </tbody>
       </table>
     </div>
 
-    <!-- Journey 1 -->
-    <div id="uj1" class="journey-box">
-      <div class="journey-header">
-        <div class="journey-num">Journey 2.1</div>
-        <div class="journey-title">Data Entry Officer — Entering Test Marks</div>
-        <div class="journey-sub">Trigger: Exam conducted. Mark sheets available. Goal: Record marks for all eligible candidates.</div>
-      </div>
-      <div class="journey-body">
-        <div class="journey-meta">
-          <div class="jm-item"><div class="jm-label">Actor</div><div class="jm-val">Data Entry Officer</div></div>
-          <div class="jm-item"><div class="jm-label">Trigger</div><div class="jm-val">Mark sheets received post-exam</div></div>
-          <div class="jm-item"><div class="jm-label">Route</div><div class="jm-val">/results/mark-entry/:jobPostId</div></div>
-          <div class="jm-item"><div class="jm-label">Ends when</div><div class="jm-val">All records saved; status set to "Ready for Review"</div></div>
-        </div>
+  </section>
 
-        <div class="step-section">
-          <h4>Step 1 — Navigate to Mark Entry</h4>
-          <p>Officer selects Job Post (Case No. + Post Title dropdown, filtered to <code>result_pending</code> state) and Exam Date. System auto-loads <code>result_type</code> and the subject list from <code>exam_subject_templates</code>.</p>
+  <!-- ============ DATABASE SCHEMA ============ -->
+  <section id="db-schema">
+    <h2 class="section-heading" style="background: #f0fdf4; --bs-bg-opacity: .3; padding: 10px; border-radius: 6px;">
+      <span class="section-num" style="background: var(--green);">5</span>
+      Database Schema Changes (v2.0)
+    </h2>
 
-          <h4>Step 2 — Choose input method</h4>
-          <p>Two tabs: <strong>Manual Entry</strong> and <strong>CSV Import</strong>. Manual renders an inline-editable table per candidate. CSV provides a template download, drag-drop upload, dry-run preview, then commit.</p>
-
-          <h4>Step 3 — Enter marks</h4>
-          <p>For <em>detailed</em>: one column per subject. For <em>summary</em>: single "Obtained Marks" column. Marks exceeding the subject max turn red on blur. Totals and percentage compute live. Auto-save fires every 10 s (debounced PUT).</p>
-
-          <h4>Step 4 — Handle absent / withheld</h4>
-          <p>Status dropdown on each row: <code>absent</code> or <code>withheld</code> bypasses mark columns entirely.</p>
-
-          <h4>Step 5 — Save &amp; hand off</h4>
-          <p>Click <strong>Save All</strong>. Toast: "485 saved, 3 errors." Officer fixes errors, re-saves, then toggles "Ready for Review" — triggering an internal notification to Results Admin.</p>
-        </div>
-
-        <div class="alt-path">
-          <strong>CSV path (alt Step 2):</strong> Download template → populate offline → upload → dry-run preview (green valid / red errors per cell) → fix → Confirm Import → tally shown.
-        </div>
-      </div>
+    <h3 class="sub-heading">1. exam_results Table (Add Columns)</h3>
+    <div class="code-wrap">
+      <div class="code-label"><span class="lang">SQL</span></div>
+      <pre><span class="k">ALTER TABLE</span> exam_results <span class="k">ADD</span> <span class="k">COLUMN</span> (
+  <span class="s">`exam_date`</span> DATE <span class="k">NOT NULL</span>,
+  <span class="s">`exam_center`</span> <span class="t">VARCHAR</span>(<span class="nu">255</span>) <span class="k">NOT NULL</span>,
+  <span class="s">`marks_status`</span> <span class="t">ENUM</span>(<span class="s">'complete'</span>, <span class="s">'partial'</span>, <span class="s">'incomplete'</span>, <span class="s">'pending_review'</span>) <span class="k">DEFAULT</span> <span class="s">'incomplete'</span>,
+  <span class="s">`pending_review`</span> <span class="t">BOOLEAN</span> <span class="k">DEFAULT</span> <span class="k">FALSE</span>,
+  <span class="s">`import_batch_id`</span> <span class="t">VARCHAR</span>(<span class="nu">50</span>) <span class="k">NULL</span>,
+  <span class="s">`updated_by`</span> <span class="t">BIGINT UNSIGNED</span> <span class="k">NULL</span>,
+  <span class="s">`updated_at`</span> <span class="t">TIMESTAMP</span> <span class="k">NULL</span>
+) <span class="k">AFTER</span> <span class="s">`obtained_marks`</span>;</span></pre>
     </div>
 
-    <!-- Journey 2 -->
-    <div id="uj2" class="journey-box">
-      <div class="journey-header">
-        <div class="journey-num">Journey 2.2</div>
-        <div class="journey-title">Results Admin — View &amp; Print a Candidate Result</div>
-        <div class="journey-sub">Trigger: Candidate or department requests result sheet, or admin doing QA before publication.</div>
-      </div>
-      <div class="journey-body">
-        <div class="journey-meta">
-          <div class="jm-item"><div class="jm-label">Actor</div><div class="jm-val">Results Admin</div></div>
-          <div class="jm-item"><div class="jm-label">Route</div><div class="jm-val">/results/view/:jobPostId</div></div>
-          <div class="jm-item"><div class="jm-label">PDF file name</div><div class="jm-val">Result_[CaseNo]_[RollNo]_[YYYYMMDDhhmm].pdf</div></div>
-          <div class="jm-item"><div class="jm-label">Security</div><div class="jm-val">CNIC masked by default; unmask is audit-logged</div></div>
-        </div>
-        <div class="step-section">
-          <h4>Step 1 — Search</h4>
-          <p>Select Job Post + Exam Date. Enter Roll No. or CNIC. Click <strong>Search</strong>.</p>
-          <h4>Step 2 — Review layout</h4>
-          <p><em>Detailed:</em> candidate info block + subject table + total + Pass/Fail badge. <em>Summary:</em> info block + single obtained-marks row + badge. CNIC masked (<code>8910X-XXXXX75-9</code>).</p>
-          <h4>Step 3 — Download PDF</h4>
-          <p>Click <strong>Download PDF</strong>. Modal: "Official or Unofficial?" Unofficial = watermarked. Official = role-gated (<code>can_print_official</code>). PDF streamed with QR code. Audit log: actor, timestamp, mode.</p>
-          <h4>Step 4 — Edit if error found</h4>
-          <p>Click <strong>Edit Marks</strong>. Inline form opens. Correct value + mandatory Edit Reason → save. Audit trail: old → new, editor, timestamp.</p>
-        </div>
-      </div>
+    <h3 class="sub-heading">2. mark_edits Table (New)</h3>
+    <div class="code-wrap">
+      <div class="code-label"><span class="lang">SQL</span></div>
+      <pre><span class="k">CREATE TABLE</span> mark_edits (
+  <span class="s">`id`</span> <span class="t">BIGINT UNSIGNED</span> <span class="k">PRIMARY KEY AUTO_INCREMENT</span>,
+  <span class="s">`exam_result_id`</span> <span class="t">BIGINT UNSIGNED NOT NULL</span>,
+  <span class="s">`original_obtained_marks`</span> <span class="t">DECIMAL</span>(<span class="nu">5</span>,<span class="nu">2</span>),
+  <span class="s">`new_obtained_marks`</span> <span class="t">DECIMAL</span>(<span class="nu">5</span>,<span class="nu">2</span>),
+  <span class="s">`edit_reason`</span> <span class="t">TEXT NOT NULL</span>,
+  <span class="s">`status`</span> <span class="t">ENUM</span>(<span class="s">'pending'</span>, <span class="s">'approved'</span>, <span class="s">'rejected'</span>) <span class="k">DEFAULT</span> <span class="s">'pending'</span>,
+  <span class="s">`approved_by`</span> <span class="t">BIGINT UNSIGNED NULL</span>,
+  <span class="s">`approval_reason`</span> <span class="t">TEXT NULL</span>,
+  <span class="s">`created_by`</span> <span class="t">BIGINT UNSIGNED NOT NULL</span>,
+  <span class="s">`created_at`</span> <span class="t">TIMESTAMP</span>,
+  <span class="s">`updated_at`</span> <span class="t">TIMESTAMP NULL</span>,
+  <span class="k">FOREIGN KEY</span> (exam_result_id) <span class="k">REFERENCES</span> exam_results(id) <span class="k">ON DELETE CASCADE</span>
+);</span></pre>
     </div>
 
-    <!-- Journey 3 -->
-    <div id="uj3" class="journey-box">
-      <div class="journey-header">
-        <div class="journey-num">Journey 2.3</div>
-        <div class="journey-title">Interview Secretary — Building the Award List</div>
-        <div class="journey-sub">Trigger: Written test finalised. Pre-selected candidates called for interview.</div>
-      </div>
-      <div class="journey-body">
-        <div class="journey-meta">
-          <div class="jm-item"><div class="jm-label">Actor</div><div class="jm-val">Interview Secretary</div></div>
-          <div class="jm-item"><div class="jm-label">Route</div><div class="jm-val">/results/awards/:jobPostId</div></div>
-          <div class="jm-item"><div class="jm-label">Max marks</div><div class="jm-val">Part-A: 25 · Part-B: 30 · Grand Total: 55</div></div>
-          <div class="jm-item"><div class="jm-label">Export</div><div class="jm-val">PDF (A4 portrait) + Excel/CSV</div></div>
-        </div>
-        <div class="step-section">
-          <h4>Step 1 — Open / create list</h4>
-          <p>Select Job Post, District, Interview Date. Click <strong>Load / Create List</strong>. Context header auto-fills: Post Title, Department, Case No., Last Doc Date, Interview Date.</p>
-          <h4>Step 2 — Populate Part-A</h4>
-          <p>Fill Matric, Intermediate, Graduation, Masters, Additional Education, B/U Position per candidate. <strong>Total (Part-A)</strong> computes live (cap 25). Tooltip explains cap if exceeded.</p>
-          <h4>Step 3 — Enter interview marks (Part-B)</h4>
-          <p>After each interview: Pak/Kashmir Studies, Islamic Studies, Current Affairs. <strong>Total (Part-B)</strong> (cap 30) and <strong>Grand Total</strong> (cap 55) auto-update.</p>
-          <h4>Step 4 — Auto-rank</h4>
-          <p>Click <strong>Auto-Rank by Grand Total</strong>. System sorts descending; ties broken by Part-A total then DOB (older preferred). Manual overrides require justification note.</p>
-          <h4>Step 5 — Set statuses &amp; export</h4>
-          <p>Top N rows → <em>Selected</em>. Rest → <em>Provisional</em>. Export PDF for chairperson signature, CSV for archive.</p>
-        </div>
-      </div>
-    </div>
+    <h3 class="sub-heading">3. Database Indices</h3>
+    <div class="code-wrap">
+      <div class="code-label"><span class="lang">SQL</span></div>
+      <pre><span class="cm">-- Composite indices for filtering + sorting</span>
+<span class="k">CREATE INDEX</span> idx_candidates_enrollment_roll 
+  <span class="k">ON</span> exam_results(job_post_id, enrollment_status, roll_number);
 
-    <!-- Journey 4 -->
-    <div id="uj4" class="journey-box">
-      <div class="journey-header">
-        <div class="journey-num">Journey 2.4</div>
-        <div class="journey-title">Senior Admin — Merit Rotation / Replacement</div>
-        <div class="journey-sub">Trigger: Selected candidate declines, fails verification, or does not join.</div>
-      </div>
-      <div class="journey-body">
-        <div class="journey-meta">
-          <div class="jm-item"><div class="jm-label">Actor</div><div class="jm-val">Senior Admin</div></div>
-          <div class="jm-item"><div class="jm-label">Route</div><div class="jm-val">/results/merit/:jobPostId</div></div>
-          <div class="jm-item"><div class="jm-label">API calls</div><div class="jm-val">PUT /awards/{id}/status → POST /awards/{id}/replace</div></div>
-          <div class="jm-item"><div class="jm-label">Audit</div><div class="jm-val">2 merit_audit_log entries per replacement</div></div>
-        </div>
-        <div class="step-section">
-          <h4>Step 1 — Identify the case</h4>
-          <p>Notification (email/alert) arrives. Admin opens Award List for the job post.</p>
-          <h4>Step 2 — Update declining candidate's status</h4>
-          <p>Click <strong>Change Status</strong> on the row. Modal: New Status dropdown + Reason Code (OFFER_DECLINED) + optional Notes. Confirm → PUT fires → audit log written.</p>
-          <h4>Step 3 — Trigger replacement</h4>
-          <p><strong>Promote Next Candidate</strong> button appears. Preview panel shows: outgoing candidate (rank, grand total, new status) → incoming candidate (rank, grand total, new status). Admin confirms → POST fires → system atomically updates both rows + writes 2 audit entries.</p>
-          <h4>Step 4 — Review &amp; export</h4>
-          <p>Outgoing row: read-only, status = Declined, Replacement Info = "Replaced by Adv-1063 on 15-03-2025". Incoming row: highlighted. Export updated award list for the record.</p>
-        </div>
-      </div>
-    </div>
+<span class="k">CREATE INDEX</span> idx_candidates_marks_status 
+  <span class="k">ON</span> exam_results(job_post_id, marks_status, created_at);
 
-    <!-- Journey 5 -->
-    <div id="uj5" class="journey-box">
-      <div class="journey-header">
-        <div class="journey-num">Journey 2.5</div>
-        <div class="journey-title">Publication Officer — Publishing Results</div>
-        <div class="journey-sub">Trigger: Chairperson gives approval for public release.</div>
-      </div>
-      <div class="journey-body">
-        <div class="journey-meta">
-          <div class="jm-item"><div class="jm-label">Actor</div><div class="jm-val">Publication Officer</div></div>
-          <div class="jm-item"><div class="jm-label">Route</div><div class="jm-val">/results/publish/:jobPostId</div></div>
-          <div class="jm-item"><div class="jm-label">Transition</div><div class="jm-val">draft → published → (withdrawn → draft)</div></div>
-          <div class="jm-item"><div class="jm-label">Side effect</div><div class="jm-val">SMS/Email notification queue dispatched</div></div>
-        </div>
-        <div class="step-section">
-          <h4>Step 1 — Pre-publication checklist</h4>
-          <p>System auto-runs: all candidates have marks ✅ · no withheld without remarks ✅ · award list approved ✅ · gazette ref missing ⚠️ (non-blocking warning).</p>
-          <h4>Step 2 — Enter gazette ref &amp; configure notifications</h4>
-          <p>Optional gazette number. Toggle: "Notify Candidates via SMS/Email" — system shows estimated count.</p>
-          <h4>Step 3 — Publish</h4>
-          <p>Click <strong>Publish Results</strong>. Final confirmation dialog (irreversible without Withdraw action). Confirm → atomic transaction: <code>is_published = true</code> on all rows + <code>result_publications</code> record created + notification jobs queued.</p>
-          <h4>Step 4 — Monitor notifications</h4>
-          <p>Delivery stats update live: "Sent: 320/485. Failed: 5." Failed entries retried individually from the Notifications module.</p>
-          <h4>Step 5 — Withdraw (if needed)</h4>
-          <p>Error found post-publish → <strong>Withdraw</strong> → mandatory reason → <code>status = withdrawn</code>, <code>is_published = false</code>, portal hides results. Re-publish after correction.</p>
-        </div>
-      </div>
+<span class="cm">-- Full-text index for search</span>
+<span class="k">CREATE FULLTEXT INDEX</span> ft_candidates_search 
+  <span class="k">ON</span> candidates(roll_number, full_name, candidate_id);
+
+<span class="cm">-- For import batch tracking</span>
+<span class="k">CREATE INDEX</span> idx_import_batch 
+  <span class="k">ON</span> exam_results(import_batch_id);</span></pre>
     </div>
   </section>
 
-  <hr/>
-
-  <!-- ══════════════════════════════════════════════
-       SECTION 3 — USE CASES
-  ══════════════════════════════════════════════ -->
-  <section class="section-uc">
-    <h2 class="section-heading" id="use-cases">
-      <span class="section-num" style="background:var(--purple)">3</span>
-      Use Cases
+  <!-- ============ VALIDATION ============ -->
+  <section id="validation">
+    <h2 class="section-heading" style="background: #f5f3ff; --bs-bg-opacity: .3; padding: 10px; border-radius: 6px;">
+      <span class="section-num" style="background: var(--purple);">6</span>
+      Validation Rules & Error Handling
     </h2>
 
-    <!-- Register -->
-    <div id="uc-register"></div>
-    <h3 class="sub-heading">Use Case Register</h3>
-    <div class="tbl-wrap">
-      <table>
-        <thead><tr><th>ID</th><th>Name</th><th>Actor</th><th>Priority</th></tr></thead>
-        <tbody>
-          <tr><td>UC-R01</td><td>Enter Written Test Marks (Manual)</td><td><span class="actor-chip">Data Entry Officer</span></td><td><span class="badge badge-p0">P0</span></td></tr>
-          <tr><td>UC-R02</td><td>Bulk Import Marks via CSV</td><td><span class="actor-chip">Data Entry Officer</span></td><td><span class="badge badge-p0">P0</span></td></tr>
-          <tr><td>UC-R03</td><td>View &amp; Print Candidate Result Sheet</td><td><span class="actor-chip">Results Admin</span></td><td><span class="badge badge-p0">P0</span></td></tr>
-          <tr><td>UC-R04</td><td>Generate Award List for Interview</td><td><span class="actor-chip">Interview Secretary</span></td><td><span class="badge badge-p0">P0</span></td></tr>
-          <tr><td>UC-R05</td><td>Enter &amp; Edit Interview Marks (Part-A &amp; B)</td><td><span class="actor-chip">Interview Secretary</span></td><td><span class="badge badge-p0">P0</span></td></tr>
-          <tr><td>UC-R06</td><td>Update Candidate Status in Merit List</td><td><span class="actor-chip">Senior Admin</span></td><td><span class="badge badge-p1">P1</span></td></tr>
-          <tr><td>UC-R07</td><td>Trigger Merit Rotation (Replacement)</td><td><span class="actor-chip">Senior Admin</span></td><td><span class="badge badge-p1">P1</span></td></tr>
-          <tr><td>UC-R08</td><td>Publish / Withdraw Results</td><td><span class="actor-chip">Publication Officer</span></td><td><span class="badge badge-p0">P0</span></td></tr>
-        </tbody>
-      </table>
+    <h3 class="sub-heading">Client-Side Validation (MarkEntryDialog)</h3>
+    <ul>
+      <li><strong>exam_date:</strong> Required, valid date (YYYY-MM-DD)</li>
+      <li><strong>exam_center:</strong> Required, must match dropdown options</li>
+      <li><strong>obtained_marks per section:</strong> Numeric, ≥ 0, ≤ total</li>
+      <li><strong>reason (if edit):</strong> Required, min 10 chars, max 500</li>
+    </ul>
+
+    <h3 class="sub-heading">Server-Side Validation (Backend)</h3>
+    <ul>
+      <li>Duplicate all client validations (never trust client)</li>
+      <li>Verify candidate is enrolled for the job</li>
+      <li>Verify exam center exists and is active</li>
+      <li>Check role permissions (data_entry_officer+ for entry, results_admin+ for edits)</li>
+      <li>Validate marks against ExamSubjectTemplate maxima</li>
+    </ul>
+
+    <h3 class="sub-heading">CSV Import Validation</h3>
+    <ul>
+      <li>File size ≤ 50MB</li>
+      <li>File type: CSV (MIME: text/csv)</li>
+      <li>Required columns present in header</li>
+      <li>Roll numbers match enrolled candidates</li>
+      <li>Marks numeric and within bounds</li>
+      <li>obtained_marks ≤ total_marks per section</li>
+    </ul>
+
+    <h3 class="sub-heading">Error Response Format</h3>
+    <div class="code-wrap">
+      <div class="code-label"><span class="lang">JSON</span></div>
+      <pre>{
+  <span class="s">"success"</span>: <span class="k">false</span>,
+  <span class="s">"message"</span>: <span class="s">"Validation failed"</span>,
+  <span class="s">"errors"</span>: {
+    <span class="s">"marks.written"</span>: <span class="s">"Cannot exceed 100"</span>,
+    <span class="s">"reason"</span>: <span class="s">"Reason must be at least 10 characters"</span>
+  },
+  <span class="s">"status_code"</span>: <span class="nu">422</span>
+}</span></pre>
     </div>
+  </section>
 
-    <!-- UC-R01 -->
-    <div id="uc-r01" class="uc-box">
-      <div class="uc-header">
-        <span class="uc-id">UC-R01</span>
-        <span class="uc-title">Enter Written Test Marks (Manual)</span>
-        <span class="uc-actor">Data Entry Officer</span>
-      </div>
-      <div class="uc-body">
-        <div class="uc-meta">
-          <div class="uc-meta-item"><div class="uc-meta-label">Goal</div><div class="uc-meta-val">Record exam marks for all eligible candidates for a given advertisement and exam date.</div></div>
-          <div class="uc-meta-item"><div class="uc-meta-label">Trigger</div><div class="uc-meta-val">Actor navigates to Results → Mark Entry and selects a job post.</div></div>
-        </div>
+  <!-- ============ SUMMARY & CHECKLIST ============ -->
+  <section id="summary">
+    <h2 class="section-heading" style="background: #fffbeb; --bs-bg-opacity: .3; padding: 10px; border-radius: 6px;">
+      <span class="section-num" style="background: var(--amber);">7</span>
+      Implementation Summary &amp; Checklist
+    </h2>
 
-        <div class="pre-post">
-          <div class="pp-box pp-pre">
-            <div class="pp-label">Preconditions</div>
-            <ul>
-              <li>Job post status is <code>result_pending</code></li>
-              <li>Roll number assignment completed</li>
-              <li>Mark sheets available</li>
-              <li>Actor has role <code>data_entry_officer</code> or higher</li>
-            </ul>
-          </div>
-          <div class="pp-box pp-post">
-            <div class="pp-label">Postconditions</div>
-            <ul>
-              <li><code>exam_results</code> rows exist for all submitted candidates</li>
-              <li><code>result_subjects</code> rows exist for detailed-type results</li>
-              <li>Audit trail initialised (user, timestamp)</li>
-            </ul>
-          </div>
-        </div>
+    <h3 class="sub-heading">What's New in v2.0</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>User Story</th>
+          <th>Type</th>
+          <th>Priority</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Candidates Table + Filtering</td>
+          <td>UC-R01a</td>
+          <td>NEW</td>
+          <td>P0</td>
+        </tr>
+        <tr>
+          <td>Dialog Marks Entry</td>
+          <td>UC-R01b</td>
+          <td>NEW</td>
+          <td>P0</td>
+        </tr>
+        <tr>
+          <td>Edit Approval Workflow</td>
+          <td>UC-R01c</td>
+          <td>NEW</td>
+          <td>P1</td>
+        </tr>
+        <tr>
+          <td>CSV Template Download</td>
+          <td>UC-R02a</td>
+          <td>NEW</td>
+          <td>P0</td>
+        </tr>
+        <tr>
+          <td>CSV Upload + Preview</td>
+          <td>UC-R02b</td>
+          <td>ENHANCED</td>
+          <td>P0</td>
+        </tr>
+        <tr>
+          <td>Marks Status Tracking</td>
+          <td>UC-R02c</td>
+          <td>NEW</td>
+          <td>P0</td>
+        </tr>
+        <tr>
+          <td>Keyset Pagination</td>
+          <td>Infra</td>
+          <td>NEW</td>
+          <td>P0</td>
+        </tr>
+      </tbody>
+    </table>
 
-        <h4>Main Flow</h4>
-        <ol class="flow-list">
-          <li><span class="step-num">1</span><span>Actor selects Job Post (filtered to <code>result_pending</code> state) from dropdown.</span></li>
-          <li><span class="step-num">2</span><span>Actor selects Exam Date.</span></li>
-          <li><span class="step-num">3</span><span>System loads all eligible candidates; detects <code>result_type</code>; renders appropriate columns.</span></li>
-          <li><span class="step-num">4</span><span>Actor enters marks per subject (detailed) or total obtained marks (summary).</span></li>
-          <li><span class="step-num">5</span><span>System validates each cell on blur — value ≤ subject max, non-negative, numeric.</span></li>
-          <li><span class="step-num">6</span><span>System computes and displays running total and percentage per row live.</span></li>
-          <li><span class="step-num">7</span><span>Actor sets status to <code>absent</code> or <code>withheld</code> where applicable.</span></li>
-          <li><span class="step-num">8</span><span>Actor clicks <strong>Save All</strong>. System persists valid rows, returns saved count + skipped count + error details.</span></li>
-          <li><span class="step-num">9</span><span>Actor fixes highlighted errors and re-saves.</span></li>
-          <li><span class="step-num">10</span><span>Actor sets status to "Ready for Review" — internal notification dispatched to Results Admin.</span></li>
-        </ol>
+    <h3 class="sub-heading">Backend Implementation Checklist</h3>
+    <ul>
+      <li><input type="checkbox"> Create database migrations for new columns + indices</li>
+      <li><input type="checkbox"> Create mark_edits table for approval workflow</li>
+      <li><input type="checkbox"> Create CandidateListService with keyset pagination logic</li>
+      <li><input type="checkbox"> Create CandidatesListRequest validation class</li>
+      <li><input type="checkbox"> Update CandidatesController with index() endpoint</li>
+      <li><input type="checkbox"> Create MarkService with save/edit logic</li>
+      <li><input type="checkbox"> Create MarksStatusService for status calculation</li>
+      <li><input type="checkbox"> Create CandidateExportService for CSV template generation</li>
+      <li><input type="checkbox"> Create ImportPipelineService for CSV import (preview + confirm)</li>
+      <li><input type="checkbox"> Add validation rules (server-side)</li>
+      <li><input type="checkbox"> Test pagination with 5000+ mock candidates</li>
+      <li><input type="checkbox"> Test filters (search, enrollment_status, exam_center, marks_status)</li>
+      <li><input type="checkbox"> Test cursor generation and validation</li>
+      <li><input type="checkbox"> Verify query performance (&lt; 200ms first page, &lt; 100ms pagination)</li>
+      <li><input type="checkbox"> Test edge cases (invalid cursor, empty results, large limits)</li>
+      <li><input type="checkbox"> Document API in Postman/Swagger</li>
+      <li><input type="checkbox"> Test approval workflow (edit → pending_review → approve/reject)</li>
+      <li><input type="checkbox"> Test CSV import (preview → confirm with file_hash)</li>
+    </ul>
 
-        <h4 style="margin-top:16px">Alternate Flows</h4>
-        <ul class="alt-list">
-          <li><span class="alt-tag">A1</span><span><strong>Marks exceed subject max (step 5):</strong> Cell highlights red. "Exceeds maximum of {N}." Save blocked for that row only.</span></li>
-          <li><span class="alt-tag">A2</span><span><strong>Candidate not in eligible list (step 3):</strong> Cannot add ad-hoc rows — candidate must appear via Roll Number module first.</span></li>
-          <li><span class="alt-tag">A3</span><span><strong>Duplicate entry detected (step 8):</strong> Conflict warning — "Record already exists for Roll No. {X}. Overwrite?" Confirm required; writes update audit entry instead of create.</span></li>
-          <li><span class="alt-tag">A4</span><span><strong>Session timeout (step 5–9):</strong> Auto-save (debounced 10 s) preserves entered data. Actor resumes from last auto-saved state on re-login.</span></li>
-        </ul>
-      </div>
-    </div>
+    <h3 class="sub-heading">Key Architectural Decisions</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Decision</th>
+          <th>Rationale</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Keyset Pagination</strong> (not offset)</td>
+          <td>O(1) query performance, handles 5000+ rows efficiently, no duplicates on data change</td>
+        </tr>
+        <tr>
+          <td><strong>Dialog-Based Entry</strong> (not inline)</td>
+          <td>Complex hierarchical marks require form validation; safer than inline editing</td>
+        </tr>
+        <tr>
+          <td><strong>Approval Workflow</strong> for edits</td>
+          <td>Audit trail + role-based approval ensures compliance; prevents accidental overwrites</td>
+        </tr>
+        <tr>
+          <td><strong>file_hash Security</strong> in CSV import</td>
+          <td>Prevents "swap file mid-confirmation" attacks; validates data integrity</td>
+        </tr>
+        <tr>
+          <td><strong>Marks Status Calculated</strong> (not stored)</td>
+          <td>Single source of truth; recalculated on every save ensures consistency</td>
+        </tr>
+      </tbody>
+    </table>
 
-    <!-- UC-R02 -->
-    <div id="uc-r02" class="uc-box">
-      <div class="uc-header">
-        <span class="uc-id">UC-R02</span>
-        <span class="uc-title">Bulk Import Marks via CSV</span>
-        <span class="uc-actor">Data Entry Officer</span>
-      </div>
-      <div class="uc-body">
-        <div class="uc-meta">
-          <div class="uc-meta-item"><div class="uc-meta-label">Goal</div><div class="uc-meta-val">Upload a CSV file to import marks for multiple candidates in one operation.</div></div>
-          <div class="uc-meta-item"><div class="uc-meta-label">Trigger</div><div class="uc-meta-val">Actor selects the CSV Import tab in the Mark Entry screen.</div></div>
-        </div>
-        <div class="pre-post">
-          <div class="pp-box pp-pre"><div class="pp-label">Preconditions</div><ul><li>Same as UC-R01</li><li>Digitised mark data available as spreadsheet</li></ul></div>
-          <div class="pp-box pp-post"><div class="pp-label">Postconditions</div><ul><li>Same as UC-R01</li><li><code>result_import_batch_id</code> stored on each row for traceability</li></ul></div>
-        </div>
-        <h4>Main Flow</h4>
-        <ol class="flow-list">
-          <li><span class="step-num">1</span><span>Actor downloads system-generated CSV template (headers match subject list for this job post).</span></li>
-          <li><span class="step-num">2</span><span>Actor populates template offline and uploads via drag-drop or file picker.</span></li>
-          <li><span class="step-num">3</span><span>System runs <strong>dry-run validation</strong>: Roll No. vs eligible list, marks vs subject max, CNIC cross-validation, mandatory column checks.</span></li>
-          <li><span class="step-num">4</span><span>System renders preview table: valid rows (green), error rows (red with field-level messages).</span></li>
-          <li><span class="step-num">5</span><span>Actor reviews, corrects CSV if needed, and re-uploads — or proceeds with valid rows only.</span></li>
-          <li><span class="step-num">6</span><span>Actor clicks <strong>Confirm Import</strong>. System persists valid rows; returns: total processed, imported, skipped (with reasons).</span></li>
-        </ol>
-        <h4 style="margin-top:16px">Alternate Flows</h4>
-        <ul class="alt-list">
-          <li><span class="alt-tag">A1</span><span><strong>CSV format mismatch (step 3):</strong> Immediate reject. "Invalid template format. Please use the downloaded template."</span></li>
-          <li><span class="alt-tag">A2</span><span><strong>All rows have errors (step 4):</strong> "0 valid rows found. Import blocked." Actor must fix and re-upload.</span></li>
-          <li><span class="alt-tag">A3</span><span><strong>Partial import (step 5):</strong> Actor elects to import valid rows and skip errors. Skipped rows recorded in batch log.</span></li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- UC-R03 -->
-    <div id="uc-r03" class="uc-box">
-      <div class="uc-header">
-        <span class="uc-id">UC-R03</span>
-        <span class="uc-title">View &amp; Print Candidate Result Sheet</span>
-        <span class="uc-actor">Results Admin</span>
-      </div>
-      <div class="uc-body">
-        <div class="uc-meta">
-          <div class="uc-meta-item"><div class="uc-meta-label">Goal</div><div class="uc-meta-val">Retrieve a candidate's result and produce an official or unofficial printed PDF.</div></div>
-          <div class="uc-meta-item"><div class="uc-meta-label">PDF spec</div><div class="uc-meta-val">A4 portrait · 12pt body · QR code · watermark on unofficial · file: Result_[CaseNo]_[RollNo]_[YYYYMMDDhhmm].pdf</div></div>
-        </div>
-        <div class="pre-post">
-          <div class="pp-box pp-pre"><div class="pp-label">Preconditions</div><ul><li>Marks entered (UC-R01 or UC-R02 complete)</li><li>Actor has role <code>results_admin</code> or higher</li></ul></div>
-          <div class="pp-box pp-post"><div class="pp-label">Postconditions</div><ul><li>PDF downloaded to actor's device</li><li>Audit entry for view + print events</li></ul></div>
-        </div>
-        <h4>Main Flow</h4>
-        <ol class="flow-list">
-          <li><span class="step-num">1</span><span>Actor selects Job Post and Exam Date.</span></li>
-          <li><span class="step-num">2</span><span>Actor enters Roll No. or CNIC → clicks <strong>Search</strong>.</span></li>
-          <li><span class="step-num">3</span><span>System retrieves record; determines <code>result_type</code>; renders appropriate layout. CNIC masked by default.</span></li>
-          <li><span class="step-num">4</span><span>Actor reviews result; clicks <strong>Download PDF</strong>.</span></li>
-          <li><span class="step-num">5</span><span>Modal: "Official or Unofficial?" System enforces <code>can_print_official</code> role gate for Official mode.</span></li>
-          <li><span class="step-num">6</span><span>System generates PDF (AJK PSC logo, candidate info, marks, QR code) and streams to browser. Audit logged.</span></li>
-        </ol>
-        <h4 style="margin-top:16px">Alternate Flows</h4>
-        <ul class="alt-list">
-          <li><span class="alt-tag">A1</span><span><strong>Result not found (step 3):</strong> "No result record found for this Roll No. / CNIC." No PDF generated.</span></li>
-          <li><span class="alt-tag">A2</span><span><strong>Result unpublished + insufficient role (step 3):</strong> "Result not yet published." Data Entry Officer blocked; Results Admin and above can still view draft results.</span></li>
-          <li><span class="alt-tag">A3</span><span><strong>Official print without permission (step 5):</strong> "You do not have permission to print in Official mode." Unofficial option remains available.</span></li>
-          <li><span class="alt-tag">A4</span><span><strong>Unmask CNIC (step 3):</strong> Actor clicks "Unmask CNIC." Role check (<code>can_unmask_cnic</code>). If granted, CNIC shown full + audit entry written.</span></li>
-          <li><span class="alt-tag">A5</span><span><strong>Error found in result (step 4):</strong> Click <strong>Edit Marks</strong>. Inline form → correct value + mandatory Edit Reason → save. Audit trail: old→new, editor, timestamp.</span></li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- UC-R04 -->
-    <div id="uc-r04" class="uc-box">
-      <div class="uc-header">
-        <span class="uc-id">UC-R04</span>
-        <span class="uc-title">Generate Award List for Interview</span>
-        <span class="uc-actor">Interview Secretary</span>
-      </div>
-      <div class="uc-body">
-        <div class="uc-meta">
-          <div class="uc-meta-item"><div class="uc-meta-label">Goal</div><div class="uc-meta-val">Create the official interview award list for a specific post and district.</div></div>
-          <div class="uc-meta-item"><div class="uc-meta-label">Scoring</div><div class="uc-meta-val">Part-A max 25 · Part-B max 30 · Grand Total max 55</div></div>
-        </div>
-        <div class="pre-post">
-          <div class="pp-box pp-pre"><div class="pp-label">Preconditions</div><ul><li>Written test results finalised and published</li><li>Pre-selected candidates identified (eligible status)</li><li>Actor has role <code>interview_secretary</code> or higher</li></ul></div>
-          <div class="pp-box pp-post"><div class="pp-label">Postconditions</div><ul><li><code>interview_awards</code> rows exist with computed totals</li><li>Merit ranks assigned</li><li>Award list exportable in official format</li></ul></div>
-        </div>
-        <h4>Main Flow</h4>
-        <ol class="flow-list">
-          <li><span class="step-num">1</span><span>Actor selects Job Post, District, Interview Date, Last Doc Date → <strong>Create Award List</strong>.</span></li>
-          <li><span class="step-num">2</span><span>System creates draft; populates rows from eligible applications (Roll No, Name, Father Name, DOB auto-filled).</span></li>
-          <li><span class="step-num">3</span><span>Actor fills Part-A columns. <code>Total (Part-A)</code> computes live, capped at 25.</span></li>
-          <li><span class="step-num">4</span><span>After interviews, actor fills Part-B columns. <code>Total (Part-B)</code> (cap 30) and <code>Grand Total</code> (cap 55) auto-update.</span></li>
-          <li><span class="step-num">5</span><span>Actor clicks <strong>Auto-Rank</strong>. System sorts descending by Grand Total; tie-breaking: Part-A ↓, then DOB ↑ (older preferred).</span></li>
-          <li><span class="step-num">6</span><span>Actor sets Status per candidate (Selected / Provisional) and exports PDF + CSV.</span></li>
-        </ol>
-        <h4 style="margin-top:16px">Alternate Flows</h4>
-        <ul class="alt-list">
-          <li><span class="alt-tag">A1</span><span><strong>List already exists (step 1):</strong> System opens existing draft. Warning: "You are editing an existing draft."</span></li>
-          <li><span class="alt-tag">A2</span><span><strong>Part-A total exceeds 25 (step 3):</strong> Display capped at 25; tooltip explains. Individual sub-marks preserved as entered.</span></li>
-          <li><span class="alt-tag">A3</span><span><strong>Manual rank override (step 5):</strong> Right-click rank cell → override → justification note required → audit-logged. Auto-rank does not overwrite manual ranks unless full re-rank is explicitly requested.</span></li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- UC-R05 -->
-    <div id="uc-r05" class="uc-box">
-      <div class="uc-header">
-        <span class="uc-id">UC-R05</span>
-        <span class="uc-title">Enter &amp; Edit Interview Marks (Part-A &amp; Part-B)</span>
-        <span class="uc-actor">Interview Secretary</span>
-      </div>
-      <div class="uc-body">
-        <div class="uc-meta">
-          <div class="uc-meta-item"><div class="uc-meta-label">Goal</div><div class="uc-meta-val">Input and correct educational qualification and interview panel marks.</div></div>
-          <div class="uc-meta-item"><div class="uc-meta-label">Save strategy</div><div class="uc-meta-val">Debounced auto-PATCH per row; optimistic locking via ETag/version counter</div></div>
-        </div>
-        <h4>Main Flow</h4>
-        <ol class="flow-list">
-          <li><span class="step-num">1</span><span>Actor opens the award list for the relevant post.</span></li>
-          <li><span class="step-num">2</span><span>Actor clicks a Part-A or Part-B cell — inline editing enabled.</span></li>
-          <li><span class="step-num">3</span><span>Actor enters mark value. System validates: non-negative, ≤ column cap, numeric.</span></li>
-          <li><span class="step-num">4</span><span>Grand Total recomputes client-side (matches server generated columns as sanity check).</span></li>
-          <li><span class="step-num">5</span><span>Actor navigates to next cell (Tab / click). System auto-saves via debounced PATCH.</span></li>
-        </ol>
-        <h4 style="margin-top:16px">Alternate Flows</h4>
-        <ul class="alt-list">
-          <li><span class="alt-tag">A1</span><span><strong>Edit on published list (step 2):</strong> Warning: "This list has been published. Editing will require Senior Admin re-approval." Proceeding sets list back to <code>draft_amendment</code> + notifies Senior Admin.</span></li>
-          <li><span class="alt-tag">A2</span><span><strong>Edit conflict — two simultaneous users (step 5):</strong> Version mismatch → HTTP 409. "This record was updated by another user. Please refresh." Actor refreshes and re-applies change.</span></li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- UC-R06 -->
-    <div id="uc-r06" class="uc-box">
-      <div class="uc-header">
-        <span class="uc-id">UC-R06</span>
-        <span class="uc-title">Update Candidate Status in Merit List</span>
-        <span class="uc-actor">Senior Admin</span>
-      </div>
-      <div class="uc-body">
-        <div class="uc-meta">
-          <div class="uc-meta-item"><div class="uc-meta-label">Goal</div><div class="uc-meta-val">Change a candidate's status with a mandatory audit trail.</div></div>
-          <div class="uc-meta-item"><div class="uc-meta-label">Reason codes</div><div class="uc-meta-val">OFFER_DECLINED · DOC_FAILED · NO_SHOW · DISQUALIFIED · OTHER</div></div>
-        </div>
-        <div class="pre-post">
-          <div class="pp-box pp-pre"><div class="pp-label">Preconditions</div><ul><li>Award list with ≥1 candidate in <code>selected</code> or <code>provisional</code> status</li><li>Actor has role <code>senior_admin</code> or higher</li></ul></div>
-          <div class="pp-box pp-post"><div class="pp-label">Postconditions</div><ul><li>Candidate status updated in <code>interview_awards</code></li><li><code>merit_audit_log</code> entry: old status, new status, reason, actor, timestamp</li></ul></div>
-        </div>
-        <h4>Main Flow</h4>
-        <ol class="flow-list">
-          <li><span class="step-num">1</span><span>Actor navigates to Results → Merit Management, selects Job Post.</span></li>
-          <li><span class="step-num">2</span><span>Actor locates candidate row → clicks <strong>Change Status</strong>.</span></li>
-          <li><span class="step-num">3</span><span>Modal: New Status (filtered valid transitions) + Reason Code + optional Notes.</span></li>
-          <li><span class="step-num">4</span><span>Actor confirms → PUT fires → <code>interview_awards.status</code> updated + <code>merit_audit_log</code> entry written.</span></li>
-          <li><span class="step-num">5</span><span>System checks if replacement should be triggered (was candidate <code>selected</code>?). Suggests: "Would you like to promote the next candidate?"</span></li>
-        </ol>
-        <h4 style="margin-top:16px">Alternate Flows</h4>
-        <ul class="alt-list">
-          <li><span class="alt-tag">A1</span><span><strong>No valid next status (step 3):</strong> Candidate already <code>disqualified</code> — dropdown disabled. "No further status changes allowed."</span></li>
-          <li><span class="alt-tag">A2</span><span><strong>Actor skips replacement prompt (step 5):</strong> Replacement can be triggered later via UC-R07.</span></li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- UC-R07 -->
-    <div id="uc-r07" class="uc-box">
-      <div class="uc-header">
-        <span class="uc-id">UC-R07</span>
-        <span class="uc-title">Trigger Merit Rotation (Replacement)</span>
-        <span class="uc-actor">Senior Admin</span>
-      </div>
-      <div class="uc-body">
-        <div class="uc-meta">
-          <div class="uc-meta-item"><div class="uc-meta-label">Goal</div><div class="uc-meta-val">Promote next-in-merit candidate when a selected candidate vacates their position.</div></div>
-          <div class="uc-meta-item"><div class="uc-meta-label">Atomic op</div><div class="uc-meta-val">Both rows updated + 2 audit entries in single DB transaction</div></div>
-        </div>
-        <div class="pre-post">
-          <div class="pp-box pp-pre"><div class="pp-label">Preconditions</div><ul><li>≥1 candidate with status <code>declined</code>/<code>absent</code>/<code>disqualified</code></li><li>Next candidate in <code>provisional</code> status exists</li><li>Actor has role <code>senior_admin</code> or higher</li></ul></div>
-          <div class="pp-box pp-post"><div class="pp-label">Postconditions</div><ul><li>Outgoing row: status updated, <code>replaced_by_roll_no</code> + <code>replaced_on</code> populated</li><li>Incoming row: status = <code>replacement</code> or <code>selected</code>, merit rank updated</li><li>2 <code>merit_audit_log</code> entries written</li></ul></div>
-        </div>
-        <h4>Main Flow</h4>
-        <ol class="flow-list">
-          <li><span class="step-num">1</span><span>Actor opens award list. Rows requiring replacement are highlighted.</span></li>
-          <li><span class="step-num">2</span><span>Actor clicks <strong>Promote Next Candidate</strong> on the vacated row.</span></li>
-          <li><span class="step-num">3</span><span>System identifies next eligible candidate: highest merit rank among <code>provisional</code> status.</span></li>
-          <li><span class="step-num">4</span><span>Confirmation panel shows both candidates' details (rank, grand total, status transition).</span></li>
-          <li><span class="step-num">5</span><span>Actor enters Reason Code + optional Notes → <strong>Confirm Replacement</strong>.</span></li>
-          <li><span class="step-num">6</span><span>System atomically: updates both rows; writes 2 audit entries; re-sequences merit ranks if needed.</span></li>
-          <li><span class="step-num">7</span><span>Table re-fetches. Outgoing row read-only with Replacement Info populated.</span></li>
-        </ol>
-        <h4 style="margin-top:16px">Alternate Flows</h4>
-        <ul class="alt-list">
-          <li><span class="alt-tag">A1</span><span><strong>No next candidate (step 3):</strong> "No provisional candidates remain. Vacancy cannot be filled. Contact Chairperson." (e.g., fresh advertisement may be needed.)</span></li>
-          <li><span class="alt-tag">A2</span><span><strong>Manual replacement (step 3):</strong> Actor specifies <code>replacementAwardId</code> manually. System validates: target has higher merit rank and <code>provisional</code> status.</span></li>
-          <li><span class="alt-tag">A3</span><span><strong>Replacement chain:</strong> If promoted candidate subsequently declines, UC-R07 is re-triggered. Each step individually audit-logged.</span></li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- UC-R08 -->
-    <div id="uc-r08" class="uc-box">
-      <div class="uc-header">
-        <span class="uc-id">UC-R08</span>
-        <span class="uc-title">Publish / Withdraw Results</span>
-        <span class="uc-actor">Publication Officer</span>
-      </div>
-      <div class="uc-body">
-        <div class="uc-meta">
-          <div class="uc-meta-item"><div class="uc-meta-label">Goal</div><div class="uc-meta-val">Make results publicly available on the candidate portal, or withdraw if an error is found.</div></div>
-          <div class="uc-meta-item"><div class="uc-meta-label">State machine</div><div class="uc-meta-val">draft → published ↔ withdrawn</div></div>
-        </div>
-        <div class="pre-post">
-          <div class="pp-box pp-pre"><div class="pp-label">Preconditions (Publish)</div><ul><li>All eligible candidates have mark entries</li><li>Award list approved by Senior Admin</li><li>Actor has role <code>publication_officer</code> or higher</li></ul></div>
-          <div class="pp-box pp-post"><div class="pp-label">Postconditions (Publish)</div><ul><li>Results visible on candidate portal via CNIC/Roll No. lookup</li><li><code>result_publications</code> record: <code>status = 'published'</code></li><li>Notification queue populated (if enabled)</li></ul></div>
-        </div>
-        <h4>Main Flow — Publish</h4>
-        <ol class="flow-list">
-          <li><span class="step-num">1</span><span>Actor selects Job Post and Publication Type (written_test / interview / final_merit).</span></li>
-          <li><span class="step-num">2</span><span>System runs pre-publish checklist: all marks entered ✅ · no withheld without remarks ✅ · award approved ✅ · gazette ref ⚠️ (non-blocking).</span></li>
-          <li><span class="step-num">3</span><span>Actor enters optional gazette reference. Toggles "Notify Candidates" — system shows estimated count.</span></li>
-          <li><span class="step-num">4</span><span>Actor clicks <strong>Publish Results</strong> → confirmation dialog (irreversible without Withdraw).</span></li>
-          <li><span class="step-num">5</span><span>Actor confirms → atomic transaction: <code>is_published = true</code> on all rows + <code>result_publications</code> record created + notification jobs queued.</span></li>
-          <li><span class="step-num">6</span><span>System shows delivery stats (live updates as queue processes).</span></li>
-        </ol>
-        <h4 style="margin-top:16px">Main Flow — Withdraw</h4>
-        <ol class="flow-list">
-          <li><span class="step-num">1</span><span>Actor clicks <strong>Withdraw</strong> on the publication record.</span></li>
-          <li><span class="step-num">2</span><span>System prompts for mandatory withdrawal reason.</span></li>
-          <li><span class="step-num">3</span><span>Actor confirms → <code>is_published = false</code>, <code>status = 'withdrawn'</code>. Candidate portal hides results. Senior Admin notified.</span></li>
-        </ol>
-        <h4 style="margin-top:16px">Alternate Flows</h4>
-        <ul class="alt-list">
-          <li><span class="alt-tag">A1</span><span><strong>Checklist fails (step 2):</strong> Blocking item present → Publish button disabled. Actor must resolve before proceeding.</span></li>
-          <li><span class="alt-tag">A2</span><span><strong>Warnings only (step 2):</strong> Non-blocking. Each warning acknowledged is logged. Actor may proceed.</span></li>
-          <li><span class="alt-tag">A3</span><span><strong>Staged publish by district (step 5):</strong> Actor filters publication scope by district — system publishes only the filtered subset, enabling staged rollout.</span></li>
-          <li><span class="alt-tag">A4</span><span><strong>Notification delivery failure (step 6):</strong> Individual failures do not block the publication. Failed entries in notification log; actor can retry from Notifications module.</span></li>
-        </ul>
-      </div>
-    </div>
-
+    <h3 class="sub-heading">Performance Targets</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Operation</th>
+          <th>Target</th>
+          <th>Strategy</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>First page (50 candidates)</td>
+          <td>&lt; 200ms</td>
+          <td>Composite index + eager loading + cache</td>
+        </tr>
+        <tr>
+          <td>Keyset pagination next</td>
+          <td>&lt; 100ms</td>
+          <td>Direct cursor lookup (no full table scan)</td>
+        </tr>
+        <tr>
+          <td>Filtered search</td>
+          <td>&lt; 500ms</td>
+          <td>Full-text index + limit select columns</td>
+        </tr>
+        <tr>
+          <td>CSV template generation</td>
+          <td>&lt; 2s</td>
+          <td>Query + stream response (no in-memory buffering)</td>
+        </tr>
+        <tr>
+          <td>CSV import preview</td>
+          <td>&lt; 3s</td>
+          <td>Lazy collection for row-by-row parsing</td>
+        </tr>
+      </tbody>
+    </table>
   </section>
 
   <div class="footer">
-    AJK PSC Admin Portal — Results Module Specification &nbsp;·&nbsp;
-    PHP 8.3+ · ReactJS + TypeScript &nbsp;·&nbsp;
-    v1.0 · 2026-05-08
+    AJK PSC Admin Portal — Results Module Specification v2.0 &nbsp;·&nbsp;
+    PHP 8.3+ · ReactJS + TypeScript · Laravel 12 &nbsp;·&nbsp;
+    Enhanced Mark Entry, CSV Management, Approval Workflow &nbsp;·&nbsp;
+    2026-05-11
   </div>
 </main>
 
@@ -1453,7 +1431,7 @@
   // Active nav link on scroll
   const links = document.querySelectorAll('.nav-link');
   const sections = Array.from(document.querySelectorAll('[id]')).filter(el =>
-    ['H2','H3','DIV'].includes(el.tagName) || el.classList.contains('uc-box') || el.classList.contains('journey-box')
+    ['H2','H3','DIV'].includes(el.tagName) || el.classList.contains('uc-box')
   );
 
   const io = new IntersectionObserver(entries => {
