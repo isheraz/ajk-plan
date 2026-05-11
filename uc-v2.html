@@ -1,0 +1,1450 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AJK PSC — Results Module Spec (v2.0)</title>
+<style>
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:    #0f172a;
+    --ink:     #1e293b;
+    --mid:     #475569;
+    --muted:   #94a3b8;
+    --border:  #e2e8f0;
+    --bg:      #f8fafc;
+    --white:   #ffffff;
+
+    --blue:    #3b82f6;
+    --blue-lt: #eff6ff;
+    --blue-dk: #1d4ed8;
+
+    --green:   #16a34a;
+    --green-lt:#f0fdf4;
+
+    --amber:   #d97706;
+    --amber-lt:#fffbeb;
+
+    --red:     #dc2626;
+    --red-lt:  #fef2f2;
+
+    --purple:  #7c3aed;
+    --purple-lt:#f5f3ff;
+
+    --sidebar-w: 272px;
+    --content-max: 900px;
+    --radius: 6px;
+    --mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    font-size: 14.5px;
+    line-height: 1.7;
+    color: var(--ink);
+    background: var(--bg);
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── Sidebar ── */
+  #sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: var(--sidebar-w);
+    height: 100vh;
+    background: var(--navy);
+    overflow-y: auto;
+    padding: 24px 0 40px;
+    z-index: 100;
+    flex-shrink: 0;
+  }
+
+  #sidebar::-webkit-scrollbar { width: 4px; }
+  #sidebar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+  .sidebar-logo {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid #1e293b;
+    margin-bottom: 16px;
+  }
+  .sidebar-logo .org { font-size: 11px; font-weight: 600; color: #64748b; letter-spacing: 1.2px; text-transform: uppercase; }
+  .sidebar-logo .title { font-size: 14px; font-weight: 700; color: #f1f5f9; margin-top: 4px; line-height: 1.3; }
+  .sidebar-logo .badge {
+    display: inline-block; margin-top: 8px;
+    background: #1e3a5f; color: #60a5fa;
+    font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; letter-spacing: .5px;
+  }
+
+  .nav-section { padding: 4px 0; }
+  .nav-section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase;
+    color: #475569; padding: 10px 20px 4px;
+  }
+
+  .nav-link {
+    display: block; padding: 5px 20px 5px 24px;
+    font-size: 12.5px; color: #94a3b8;
+    text-decoration: none; border-left: 2px solid transparent;
+    transition: all .15s;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .nav-link:hover { color: #e2e8f0; background: #1e293b; }
+  .nav-link.active { color: #60a5fa; border-left-color: #3b82f6; background: #1e293b; }
+  .nav-link.sub { padding-left: 36px; font-size: 11.5px; color: #64748b; }
+  .nav-link.sub:hover { color: #94a3b8; }
+
+  /* ── Main content ── */
+  #main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    padding: 48px 56px 80px;
+    max-width: calc(var(--sidebar-w) + var(--content-max) + 112px);
+  }
+
+  /* ── Page header ── */
+  .page-header {
+    background: linear-gradient(135deg, var(--navy) 0%, #1e3a5f 100%);
+    border-radius: 10px;
+    padding: 36px 40px;
+    margin-bottom: 48px;
+    color: white;
+  }
+  .page-header .pre-title { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: #60a5fa; margin-bottom: 10px; }
+  .page-header h1 { font-size: 26px; font-weight: 800; line-height: 1.2; }
+  .page-header .meta { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.15);
+    color: #cbd5e1; font-size: 12px; font-weight: 500;
+    padding: 4px 12px; border-radius: 20px;
+  }
+  .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; }
+
+  /* ── Section headers ── */
+  h2.section-heading {
+    font-size: 20px; font-weight: 800; color: var(--navy);
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 10px; margin: 48px 0 24px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  h2.section-heading .section-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 6px;
+    font-size: 13px; font-weight: 700; color: white; flex-shrink: 0;
+  }
+
+  h3.sub-heading {
+    font-size: 15px; font-weight: 700; color: var(--ink);
+    margin: 32px 0 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  h3.sub-heading::before {
+    content: ''; display: block; width: 3px; height: 18px;
+    border-radius: 2px; background: var(--blue);
+  }
+
+  h4 { font-size: 13px; font-weight: 700; color: var(--mid); margin: 20px 0 8px; text-transform: uppercase; letter-spacing: .6px; }
+  h5 { font-size: 12px; font-weight: 700; color: var(--mid); margin: 16px 0 6px; }
+
+  p { margin-bottom: 14px; color: var(--ink); }
+
+  /* ── Colour theme overrides per section ── */
+  .section-dto   h3.sub-heading::before { background: var(--blue); }
+  .section-uj    h3.sub-heading::before { background: var(--green); }
+  .section-uc    h3.sub-heading::before { background: var(--purple); }
+  .section-new   h3.sub-heading::before { background: #f59e0b; }
+
+  /* ── Code blocks ── */
+  .code-wrap { margin: 16px 0; border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .code-label {
+    background: #1e293b; color: #64748b;
+    font-family: var(--mono); font-size: 11px;
+    padding: 7px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid #334155;
+  }
+  .code-label .lang { color: #7dd3fc; font-weight: 600; }
+  pre {
+    background: #0f172a;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.65;
+  }
+  pre::-webkit-scrollbar { height: 4px; }
+  pre::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+  code { font-family: var(--mono); }
+
+  /* Syntax colours */
+  .k  { color: #c084fc; }
+  .t  { color: #7dd3fc; }
+  .s  { color: #86efac; }
+  .n  { color: #fde68a; }
+  .cm { color: #475569; font-style: italic; }
+  .at { color: #fb923c; }
+  .nu { color: #f9a8d4; }
+  .kw { color: #818cf8; }
+  .op { color: #94a3b8; }
+
+  /* inline code */
+  code:not(pre code) {
+    background: #f1f5f9; color: #7c3aed;
+    font-size: 12.5px; padding: 1px 5px;
+    border-radius: 4px; font-family: var(--mono);
+  }
+
+  /* ── Tables ── */
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+  th { background: var(--blue-lt); color: var(--blue-dk); padding: 10px; text-align: left; font-weight: 700; border: 1px solid var(--border); }
+  td { padding: 10px; border: 1px solid var(--border); }
+  tr:nth-child(even) { background: #fafafa; }
+
+  /* ── Lists ── */
+  ul, ol { margin: 12px 0 12px 24px; }
+  li { margin-bottom: 6px; }
+
+  /* ── Boxes ── */
+  .info-box {
+    background: var(--blue-lt); border-left: 4px solid var(--blue); padding: 12px 16px;
+    border-radius: 4px; margin: 16px 0;
+  }
+  .warning-box {
+    background: var(--amber-lt); border-left: 4px solid var(--amber); padding: 12px 16px;
+    border-radius: 4px; margin: 16px 0;
+  }
+
+  .uc-box, .journey-box {
+    border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin: 20px 0;
+    background: white;
+  }
+
+  .uc-header, .journey-header {
+    display: flex; gap: 12px; align-items: center; margin-bottom: 16px; border-bottom: 2px solid var(--border); padding-bottom: 12px;
+  }
+
+  .uc-id, .journey-id {
+    background: var(--blue); color: white; padding: 4px 8px; border-radius: 4px;
+    font-size: 11px; font-weight: 700; flex-shrink: 0;
+  }
+
+  .uc-title, .journey-title {
+    font-weight: 700; flex: 1;
+  }
+
+  .uc-actor, .journey-actor {
+    background: #f1f5f9; padding: 4px 8px; border-radius: 4px; font-size: 12px; color: var(--mid);
+  }
+
+  .uc-meta, .journey-meta { background: #f9fafb; padding: 12px; border-radius: 4px; margin-bottom: 16px; }
+  .uc-meta-item, .journey-meta-item { display: flex; gap: 12px; margin-bottom: 8px; font-size: 13px; }
+  .uc-meta-label, .journey-meta-label { font-weight: 700; min-width: 120px; color: var(--mid); }
+
+  .pre-post { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .pp-box { background: #f9fafb; padding: 12px; border-radius: 4px; border-left: 3px solid var(--green); }
+  .pp-label { font-weight: 700; font-size: 12px; color: var(--green); margin-bottom: 8px; text-transform: uppercase; }
+  .pp-box ul { margin: 8px 0 0 20px; }
+
+  .flow-list { list-style: none; margin: 12px 0; }
+  .flow-list li { display: flex; gap: 12px; margin-bottom: 10px; }
+  .step-num { background: var(--blue); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; flex-shrink: 0; }
+
+  .alt-list { list-style: none; margin: 12px 0; }
+  .alt-list li { display: flex; gap: 12px; margin-bottom: 10px; padding: 8px; background: #f9fafb; border-radius: 4px; }
+  .alt-tag { background: var(--purple); color: white; padding: 2px 6px; border-radius: 3px; font-weight: 700; font-size: 11px; flex-shrink: 0; }
+
+  .footer {
+    border-top: 2px solid var(--border);
+    padding: 24px 56px;
+    margin-top: 60px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .new-badge { background: #fbbf24; color: #78350f; padding: 2px 6px; border-radius: 3px; font-weight: 600; font-size: 11px; }
+
+  .api-endpoint {
+    background: #f9fafb; padding: 12px 16px; border-radius: 4px; margin: 12px 0;
+    border-left: 4px solid var(--blue); font-family: var(--mono);
+  }
+
+  .method-get { color: #16a34a; font-weight: 700; }
+  .method-post { color: #dc2626; font-weight: 700; }
+  .method-put { color: #7c3aed; font-weight: 700; }
+
+  @media (max-width: 1200px) {
+    #main { padding: 32px 24px 60px; }
+    .pre-post { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 768px) {
+    body { flex-direction: column; }
+    #sidebar { position: static; width: 100%; height: auto; padding: 12px 0; }
+    #main { margin-left: 0; padding: 24px 16px; }
+    .page-header { padding: 20px; }
+    .page-header h1 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<aside id="sidebar">
+  <div class="sidebar-logo">
+    <div class="org">AJK PSC</div>
+    <div class="title">Results Module</div>
+    <span class="badge">v2.0</span>
+  </div>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-label">Overview</div>
+      <a class="nav-link" href="#overview">Overview</a>
+      <a class="nav-link" href="#arch">Architecture</a>
+      <a class="nav-link" href="#v2-changes">v2.0 Enhancements</a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Core Features (v1.0)</div>
+      <a class="nav-link" href="#uc-r01">UC-R01: Enter Marks</a>
+      <a class="nav-link" href="#uc-r02">UC-R02: CSV Import</a>
+      <a class="nav-link" href="#uc-r03">UC-R03: Search Result</a>
+      <a class="nav-link" href="#uc-r04">UC-R04: Award List</a>
+      <a class="nav-link" href="#uc-r05">UC-R05: Edit Published</a>
+      <a class="nav-link" href="#uc-r06">UC-R06: Change Status</a>
+      <a class="nav-link" href="#uc-r07">UC-R07: Merit Rotation</a>
+      <a class="nav-link" href="#uc-r08">UC-R08: Publish Results</a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Enhanced Features (v2.0)</div>
+      <a class="nav-link" href="#uc-r01a">UC-R01a: Table + Filtering</a>
+      <a class="nav-link" href="#uc-r01b">UC-R01b: Dialog Marks Entry</a>
+      <a class="nav-link" href="#uc-r01c">UC-R01c: Edit Approval</a>
+      <a class="nav-link" href="#uc-r02a">UC-R02a: CSV Template</a>
+      <a class="nav-link" href="#uc-r02b">UC-R02b: CSV Upload+Preview</a>
+      <a class="nav-link" href="#uc-r02c">UC-R02c: Status Tracking</a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Backend APIs (v2.0)</div>
+      <a class="nav-link" href="#api-candidates">GET /candidates</a>
+      <a class="nav-link" href="#api-marks">PUT /marks</a>
+      <a class="nav-link" href="#api-csv">CSV Endpoints</a>
+      <a class="nav-link" href="#api-pagination">Pagination Strategy</a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Implementation</div>
+      <a class="nav-link" href="#db-schema">Database Changes</a>
+      <a class="nav-link" href="#validation">Validation Rules</a>
+      <a class="nav-link" href="#summary">Summary & Checklist</a>
+    </div>
+  </nav>
+</aside>
+
+<main id="main">
+  <div class="page-header">
+    <div class="pre-title">AJK PSC Admin Portal</div>
+    <h1>Results Module Specification</h1>
+    <div class="meta">
+      <div class="pill"><span class="dot"></span>Version 2.0</div>
+      <div class="pill">Updated: 2026-05-11</div>
+      <div class="pill">Enhanced Mark Entry &amp; CSV Management</div>
+    </div>
+  </div>
+
+  <!-- ============ OVERVIEW ============ -->
+  <section id="overview">
+    <h2 class="section-heading" style="background: #eff6ff; --bs-bg-opacity: .3; padding: 10px; border-radius: 6px;">
+      <span class="section-num" style="background: var(--blue);">1</span>
+      Overview
+    </h2>
+
+    <p>The AJK Results Module manages the complete lifecycle of exam results: from mark entry and validation, through merit ranking, to official publication and withdrawal. This specification covers both the original v1.0 workflows and the new v2.0 enhancements for production-scale mark management.</p>
+
+    <h3 class="sub-heading">Module Goals</h3>
+    <ul>
+      <li><strong>Data Entry:</strong> Record exam marks for 5000+ candidates with validation safeguards</li>
+      <li><strong>Bulk Operations:</strong> Import marks via CSV with preview and error handling</li>
+      <li><strong>Approval Workflow:</strong> Track and approve mark corrections with full audit trail</li>
+      <li><strong>Merit Ranking:</strong> Auto-rank candidates and handle promotions/replacements atomically</li>
+      <li><strong>Publication:</strong> Publish results to candidate portal with staged rollout capability</li>
+      <li><strong>Compliance:</strong> Audit every action (create, edit, approve, withdraw)</li>
+    </ul>
+
+    <h3 class="sub-heading">Key Changes in v2.0</h3>
+    <ul>
+      <li><span class="new-badge">NEW</span> <strong>Candidates List Table:</strong> TanStack Table with virtual scrolling for 5000+ candidates</li>
+      <li><span class="new-badge">NEW</span> <strong>Dialog-Based Entry:</strong> Hierarchical mark entry form (main exam + sub-sections)</li>
+      <li><span class="new-badge">NEW</span> <strong>Approval Workflow:</strong> Mark edits require admin approval before save</li>
+      <li><span class="new-badge">NEW</span> <strong>CSV Template Download:</strong> Pre-filled CSV with candidate data</li>
+      <li><span class="new-badge">NEW</span> <strong>Enhanced CSV Import:</strong> Preview + selective skip for invalid rows</li>
+      <li><span class="new-badge">NEW</span> <strong>Marks Status Tracking:</strong> Complete / Partial / Incomplete / Pending Review</li>
+      <li><span class="new-badge">NEW</span> <strong>Keyset Pagination:</strong> Efficient cursor-based pagination for large datasets</li>
+    </ul>
+  </section>
+
+  <!-- ============ ARCHITECTURE ============ -->
+  <section id="arch">
+    <h2 class="section-heading" style="background: #f0fdf4; --bs-bg-opacity: .3; padding: 10px; border-radius: 6px;">
+      <span class="section-num" style="background: var(--green);">2</span>
+      Architecture Overview
+    </h2>
+
+    <h3 class="sub-heading">Two Main Workflows</h3>
+
+    <h5>Flow A: Direct Mark Entry (Dialog-Based)</h5>
+    <div class="info-box">
+      User selects job → Views candidates table → Clicks "Add/Edit Marks" → Dialog opens → Enters hierarchical marks → Saves → If editing existing: requires approval
+    </div>
+
+    <h5>Flow B: Bulk CSV Import</h5>
+    <div class="info-box">
+      User selects job → Clicks "Download Template" → Fills marks in Excel → Uploads CSV → Preview shows first 50 rows + errors → User confirms → Marks saved with batch ID
+    </div>
+
+    <h3 class="sub-heading">Marks Status Lifecycle</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Meaning</th>
+          <th>Transition</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>incomplete</code></td>
+          <td>No marks recorded</td>
+          <td>→ complete</td>
+          <td>Enter marks via dialog or CSV</td>
+        </tr>
+        <tr>
+          <td><code>partial</code></td>
+          <td>Some sections filled, some empty</td>
+          <td>→ complete</td>
+          <td>Fill remaining sections</td>
+        </tr>
+        <tr>
+          <td><code>complete</code></td>
+          <td>All sections have marks</td>
+          <td>→ pending_review</td>
+          <td>Edit existing marks (requires reason)</td>
+        </tr>
+        <tr>
+          <td><code>pending_review</code></td>
+          <td>Marks edited, awaiting admin approval</td>
+          <td>→ complete</td>
+          <td>Results Admin approves edit</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub-heading">Component Interaction</h3>
+    <div class="info-box">
+      <strong>Frontend:</strong> CandidatesMarksPage → CandidatesMarksTable (TanStack) → MarkEntryDialog (hierarchical form)<br/>
+      <strong>Backend:</strong> CandidateListService (pagination) → MarkService (save/edit) → MarksStatusService (calculate status)<br/>
+      <strong>Database:</strong> exam_results, mark_edits (approval workflow), import_batches (CSV tracking)
+    </div>
+  </section>
+
+  <!-- ============ V2.0 ENHANCEMENTS ============ -->
+  <section id="v2-changes">
+    <h2 class="section-heading" style="background: #f5f3ff; --bs-bg-opacity: .3; padding: 10px; border-radius: 6px;">
+      <span class="section-num" style="background: var(--purple);">3</span>
+      v2.0 Enhancements: New User Stories &amp; Use Cases
+    </h2>
+
+    <!-- UC-R01a -->
+    <div id="uc-r01a" class="uc-box">
+      <div class="uc-header">
+        <span class="uc-id">UC-R01a</span>
+        <span class="uc-title">View Candidates Table with Advanced Filtering</span>
+        <span class="uc-actor">Data Entry Officer / Results Admin</span>
+        <span class="new-badge">NEW</span>
+      </div>
+      <div class="uc-body">
+        <div class="uc-meta">
+          <div class="uc-meta-item"><div class="uc-meta-label">Priority</div><div class="uc-meta-val">P0</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Actor Goal</div><div class="uc-meta-val">View all eligible candidates for a job in a paginated, filterable table with virtual scrolling for 5000+ candidates</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Tech Stack</div><div class="uc-meta-val">TanStack Table v8 + react-virtual for virtual scrolling</div></div>
+        </div>
+
+        <h4>Acceptance Criteria</h4>
+        <ul>
+          <li>✅ Table displays: Roll Number, Candidate ID, Name, Enrollment Status, Exam Center, Marks Status</li>
+          <li>✅ Filters available: Search (roll/name/ID), Enrollment Status, Exam Center, Marks Completion Status</li>
+          <li>✅ Virtual scrolling handles 5000+ rows without performance degradation</li>
+          <li>✅ Marks visible in-table with hover tooltip preview (e.g., "Written: 85/100, Viva: 18/20, Interview: 28/30")</li>
+          <li>✅ Table remembers filter state during session</li>
+          <li>✅ Pagination via keyset cursor (not offset)</li>
+          <li>✅ First page load &lt; 200ms, pagination next &lt; 100ms</li>
+        </ul>
+
+        <h4 style="margin-top: 16px;">Main Flow</h4>
+        <ol class="flow-list">
+          <li><span class="step-num">1</span>User selects a job/exam from dropdown</li>
+          <li><span class="step-num">2</span>System loads first page (50 candidates) via GET /candidates</li>
+          <li><span class="step-num">3</span>Table displays with virtual scrolling enabled</li>
+          <li><span class="step-num">4</span>User scrolls → System auto-loads next page (cursor-based pagination)</li>
+          <li><span class="step-num">5</span>User applies filters (search, status, exam center) → Table resets to page 1</li>
+          <li><span class="step-num">6</span>User hovers over marks cell → Tooltip shows breakdown by section</li>
+          <li><span class="step-num">7</span>User clicks "Add/Edit Marks" button → Opens MarkEntryDialog</li>
+        </ol>
+
+        <h4 style="margin-top: 16px;">Data Flow: GET /api/v1/results/{jobPostId}/candidates</h4>
+        <div class="api-endpoint">
+          <span class="method-get">GET</span> /api/v1/results/{jobPostId}/candidates?limit=50&cursor=...&search=...&enrollment_status=...&exam_center=...&marks_status=...
+        </div>
+        <p><strong>Response:</strong> Array of candidates with pagination metadata (total, has_more, next_cursor)</p>
+      </div>
+    </div>
+
+    <!-- UC-R01b -->
+    <div id="uc-r01b" class="uc-box">
+      <div class="uc-header">
+        <span class="uc-id">UC-R01b</span>
+        <span class="uc-title">Add/Edit Exam Marks via Dialog Form</span>
+        <span class="uc-actor">Data Entry Officer</span>
+        <span class="new-badge">NEW</span>
+      </div>
+      <div class="uc-body">
+        <div class="uc-meta">
+          <div class="uc-meta-item"><div class="uc-meta-label">Priority</div><div class="uc-meta-val">P0</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Actor Goal</div><div class="uc-meta-val">Enter hierarchical exam marks (main exam + sub-sections: Written, Viva, Interview) with client-side validation</div></div>
+        </div>
+
+        <h4>Acceptance Criteria</h4>
+        <ul>
+          <li>✅ Dialog captures: Exam Date, Exam Center (dropdown), hierarchical mark sections</li>
+          <li>✅ Sub-sections displayed: Written (100), Viva (20), Interview (30) — each with obtained/total</li>
+          <li>✅ Client-side validation: obtained ≤ total per section, numeric values only</li>
+          <li>✅ Real-time percentage calculation for each section and total</li>
+          <li>✅ Save updates candidate record and refreshes table immediately</li>
+          <li>✅ Marks Status updates to complete/partial based on section completeness</li>
+          <li>✅ If editing existing marks: show "Reason for Correction" field (required, min 10 chars)</li>
+        </ul>
+
+        <h4 style="margin-top: 16px;">Form Structure</h4>
+        <div class="code-wrap">
+          <div class="code-label"><span class="lang">JavaScript</span></div>
+          <pre><span class="k">const</span> formData = {
+  exam_date: <span class="s">''</span>,
+  exam_center: <span class="s">''</span>,
+  marks: {
+    written: { obtained: <span class="s">''</span>, total: <span class="nu">100</span> },
+    viva: { obtained: <span class="s">''</span>, total: <span class="nu">20</span> },
+    interview: { obtained: <span class="s">''</span>, total: <span class="nu">30</span> }
+  },
+  reason: <span class="s">''</span>  <span class="cm">// Only if editing</span>
+};</span></pre>
+        </div>
+
+        <h4 style="margin-top: 16px;">Validation Rules (Client + Server)</h4>
+        <ul>
+          <li>exam_date: Required, must be valid date</li>
+          <li>exam_center: Required, must match available centers</li>
+          <li>obtained_marks: Must be numeric, ≥ 0, ≤ total_marks</li>
+          <li>reason (if edit): Required, min 10 characters, max 500</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- UC-R01c -->
+    <div id="uc-r01c" class="uc-box">
+      <div class="uc-header">
+        <span class="uc-id">UC-R01c</span>
+        <span class="uc-title">Edit Marks with Approval Workflow</span>
+        <span class="uc-actor">Data Entry Officer / Results Admin</span>
+        <span class="new-badge">NEW</span>
+      </div>
+      <div class="uc-body">
+        <div class="uc-meta">
+          <div class="uc-meta-item"><div class="uc-meta-label">Priority</div><div class="uc-meta-val">P1</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Actor Goal</div><div class="uc-meta-val">Edit previously saved marks with mandatory reason/note; changes move to Pending Review status and require Results Admin approval</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Approval Authority</div><div class="uc-meta-val">Results Admin or higher role</div></div>
+        </div>
+
+        <h4>Acceptance Criteria</h4>
+        <ul>
+          <li>✅ Edit dialog shows "Reason for Correction" field (required, min 10 chars)</li>
+          <li>✅ User submits edit → Backend creates mark_edits record</li>
+          <li>✅ Candidate marks_status changes to <code>pending_review</code></li>
+          <li>✅ Toast message: "Mark changes submitted for approval"</li>
+          <li>✅ Results Admin receives notification of pending approval</li>
+          <li>✅ Results Admin can approve or reject via PUT /marks-edits/{editId}/approve</li>
+          <li>✅ Audit log captures: old marks, new marks, reason, approver, timestamp</li>
+        </ul>
+
+        <h4 style="margin-top: 16px;">Approval Endpoint</h4>
+        <div class="api-endpoint">
+          <span class="method-put">PUT</span> /api/v1/results/{jobPostId}/marks-edits/{editId}/approve
+        </div>
+        <div class="code-wrap">
+          <div class="code-label"><span class="lang">JSON</span></div>
+          <pre>{
+  <span class="s">"approved"</span>: <span class="k">true</span> | <span class="k">false</span>,
+  <span class="s">"approval_reason"</span>: <span class="s">"Optional notes"</span>
+}</pre>
+        </div>
+
+        <h4 style="margin-top: 16px;">State Machine</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>From Status</th>
+              <th>To Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>New entry</td>
+              <td>incomplete</td>
+              <td>complete</td>
+              <td>Auto-save (Data Entry Officer)</td>
+            </tr>
+            <tr>
+              <td>Edit existing</td>
+              <td>complete</td>
+              <td>pending_review</td>
+              <td>Requires reason, awaits approval</td>
+            </tr>
+            <tr>
+              <td>Approve</td>
+              <td>pending_review</td>
+              <td>complete</td>
+              <td>Results Admin approves</td>
+            </tr>
+            <tr>
+              <td>Reject</td>
+              <td>pending_review</td>
+              <td>complete (reverted)</td>
+              <td>Results Admin rejects, original marks restored</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- UC-R02a -->
+    <div id="uc-r02a" class="uc-box">
+      <div class="uc-header">
+        <span class="uc-id">UC-R02a</span>
+        <span class="uc-title">Download Pre-filled CSV Template</span>
+        <span class="uc-actor">Data Entry Officer</span>
+        <span class="new-badge">NEW</span>
+      </div>
+      <div class="uc-body">
+        <div class="uc-meta">
+          <div class="uc-meta-item"><div class="uc-meta-label">Priority</div><div class="uc-meta-val">P0</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Actor Goal</div><div class="uc-meta-val">Download a pre-filled CSV with all eligible candidates + standard fields so they can bulk-add marks in Excel and re-upload</div></div>
+        </div>
+
+        <h4>Acceptance Criteria</h4>
+        <ul>
+          <li>✅ CSV filename: [JobTitle]_[ExamDate]_marks_template.csv</li>
+          <li>✅ Columns: Roll Number, Candidate ID, Full Name, Enrollment Status, Job Title, Exam Center, Total Marks, [Sub-section Obtained Columns]</li>
+          <li>✅ Pre-filled rows with all enrolled candidates (sorted by roll number)</li>
+          <li>✅ User fills in obtained marks columns, saves, and re-uploads</li>
+          <li>✅ CSV includes timestamp in file metadata</li>
+          <li>✅ File size optimized (no unnecessary columns)</li>
+        </ul>
+
+        <h4 style="margin-top: 16px;">Sample CSV Output</h4>
+        <div class="code-wrap">
+          <div class="code-label"><span class="lang">CSV</span></div>
+          <pre>Roll Number,Candidate ID,Full Name,Enrollment Status,Job Title,Exam Center,Written Max,Written Obtained,Viva Max,Viva Obtained,Interview Max,Interview Obtained
+A-001,C-12345,Ahmed Ali,enrolled,Assistant Commissioner,Muzaffarabad,100,,20,,30,
+A-002,C-12346,Fatima Khan,enrolled,Assistant Commissioner,Muzaffarabad,100,,20,,30,
+A-003,C-12347,Ali Hassan,enrolled,Assistant Commissioner,Muzaffarabad,100,,20,,30,</pre>
+        </div>
+
+        <h4 style="margin-top: 16px;">Endpoint</h4>
+        <div class="api-endpoint">
+          <span class="method-get">GET</span> /api/v1/results/{jobPostId}/csv-template
+        </div>
+        <p><strong>Returns:</strong> CSV file (attachment, not JSON)</p>
+      </div>
+    </div>
+
+    <!-- UC-R02b -->
+    <div id="uc-r02b" class="uc-box">
+      <div class="uc-header">
+        <span class="uc-id">UC-R02b</span>
+        <span class="uc-title">Upload & Preview Marks from CSV</span>
+        <span class="uc-actor">Data Entry Officer</span>
+        <span class="new-badge">ENHANCED</span>
+      </div>
+      <div class="uc-body">
+        <div class="uc-meta">
+          <div class="uc-meta-item"><div class="uc-meta-label">Priority</div><div class="uc-meta-val">P0</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Actor Goal</div><div class="uc-meta-val">Upload CSV with completed marks, preview data to be imported, and confirm import with validation safeguards</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Security</div><div class="uc-meta-val">file_hash prevents tampering between preview and confirm</div></div>
+        </div>
+
+        <h4>Acceptance Criteria</h4>
+        <ul>
+          <li>✅ File upload accepts .csv (max 50MB)</li>
+          <li>✅ CSV validation checks: Required columns present, marks numeric, obtained ≤ total, roll numbers match enrolled candidates</li>
+          <li>✅ Preview screen shows first 50 rows of valid data + summary of errors</li>
+          <li>✅ Error rows highlight specific field errors (e.g., "Viva marks 25 exceeds max 20")</li>
+          <li>✅ User can skip invalid rows or correct and re-upload</li>
+          <li>✅ User must confirm import before database save</li>
+          <li>✅ Success message shows "450 marks imported, 2 skipped due to errors"</li>
+          <li>✅ All imported rows tagged with import_batch_id for traceability</li>
+        </ul>
+
+        <h4 style="margin-top: 16px;">Two-Step Flow: Preview → Confirm</h4>
+
+        <h5>Step 1: Preview (POST with dry_run=true)</h5>
+        <div class="api-endpoint">
+          <span class="method-post">POST</span> /api/v1/results/{jobPostId}/marks-import/preview
+        </div>
+        <div class="code-wrap">
+          <div class="code-label"><span class="lang">JSON</span></div>
+          <pre>{
+  <span class="s">"file"</span>: <span class="s">"&lt;CSV content&gt;"</span>,
+  <span class="s">"dry_run"</span>: <span class="k">true</span>
+}
+
+<span class="cm">// Response includes file_hash for confirmation step</span>
+{
+  <span class="s">"valid_rows"</span>: [ <span class="cm">/* first 50 rows */</span> ],
+  <span class="s">"error_rows"</span>: [ <span class="cm">/* rows with errors */</span> ],
+  <span class="s">"file_hash"</span>: <span class="s">"sha256:abc123def456"</span>,
+  <span class="s">"summary"</span>: {
+    <span class="s">"total_rows"</span>: <span class="nu">100</span>,
+    <span class="s">"valid_rows"</span>: <span class="nu">97</span>,
+    <span class="s">"error_rows"</span>: <span class="nu">3</span>,
+    <span class="s">"will_import"</span>: <span class="nu">97</span>
+  }
+}</span></pre>
+        </div>
+
+        <h5>Step 2: Confirm (POST with file_hash)</h5>
+        <div class="api-endpoint">
+          <span class="method-post">POST</span> /api/v1/results/{jobPostId}/marks-import/confirm
+        </div>
+        <div class="code-wrap">
+          <div class="code-label"><span class="lang">JSON</span></div>
+          <pre>{
+  <span class="s">"file_hash"</span>: <span class="s">"sha256:abc123def456"</span>,
+  <span class="s">"skip_invalid_rows"</span>: <span class="k">true</span>
+}
+
+<span class="cm">// Response</span>
+{
+  <span class="s">"success"</span>: <span class="k">true</span>,
+  <span class="s">"imported"</span>: <span class="nu">97</span>,
+  <span class="s">"skipped"</span>: <span class="nu">3</span>,
+  <span class="s">"message"</span>: <span class="s">"97 marks imported, 3 skipped due to errors"</span>,
+  <span class="s">"batch_id"</span>: <span class="s">"import-batch-20250511-001"</span>
+}</span></pre>
+        </div>
+
+        <h4 style="margin-top: 16px;">Security Model</h4>
+        <div class="warning-box">
+          <strong>file_hash prevents tampering:</strong> Preview calculates SHA256 of file content. Confirm endpoint validates the hash matches stored preview, preventing "swap file mid-confirmation" attacks. Preview cached for 30 minutes.
+        </div>
+      </div>
+    </div>
+
+    <!-- UC-R02c -->
+    <div id="uc-r02c" class="uc-box">
+      <div class="uc-header">
+        <span class="uc-id">UC-R02c</span>
+        <span class="uc-title">Track Marks Completion Status</span>
+        <span class="uc-actor">Data Entry Officer / Results Admin</span>
+        <span class="new-badge">NEW</span>
+      </div>
+      <div class="uc-body">
+        <div class="uc-meta">
+          <div class="uc-meta-item"><div class="uc-meta-label">Priority</div><div class="uc-meta-val">P0</div></div>
+          <div class="uc-meta-item"><div class="uc-meta-label">Actor Goal</div><div class="uc-meta-val">See a "Marks Status" column in the candidates table showing Complete/Incomplete/Partial/Pending Review to quickly identify which candidates need attention</div></div>
+        </div>
+
+        <h4>Acceptance Criteria</h4>
+        <ul>
+          <li>✅ <code>complete</code>: All sub-sections (written, viva, interview) have obtained_marks recorded</li>
+          <li>✅ <code>partial</code>: Some sub-sections have marks, others are empty</li>
+          <li>✅ <code>incomplete</code>: No marks recorded for any section</li>
+          <li>✅ <code>pending_review</code>: Marks were edited and awaiting admin approval</li>
+          <li>✅ Status updates automatically after CSV upload or dialog save</li>
+          <li>✅ Filter by status available in table filters (multi-select)</li>
+          <li>✅ Status badge color-coded for quick visual scanning</li>
+        </ul>
+
+        <h4 style="margin-top: 16px;">Status Calculation Logic (Backend)</h4>
+        <div class="code-wrap">
+          <div class="code-label"><span class="lang">PHP</span></div>
+          <pre><span class="k">function</span> calculateMarksStatus($candidateId, $jobPostId) {
+  $examResults = ExamResult::where(<span class="s">'candidate_id'</span>, $candidateId)
+    -&gt;where(<span class="s">'job_post_id'</span>, $jobPostId)
+    -&gt;get();
+
+  <span class="cm">// 1. Check if any marks pending approval</span>
+  if ($examResults-&gt;contains(fn($r) =&gt; $r-&gt;pending_review === <span class="k">true</span>)) {
+    <span class="k">return</span> <span class="s">'pending_review'</span>;
+  }
+
+  <span class="cm">// 2. Count filled sections</span>
+  $totalSections = ExamSubjectTemplate::where(<span class="s">'job_post_id'</span>, $jobPostId)-&gt;count();
+  $filledSections = $examResults-&gt;filter(fn($r) =&gt; $r-&gt;obtained_marks !== <span class="k">null</span>)-&gt;count();
+
+  if ($filledSections === <span class="nu">0</span>) <span class="k">return</span> <span class="s">'incomplete'</span>;
+  if ($filledSections === $totalSections) <span class="k">return</span> <span class="s">'complete'</span>;
+  <span class="k">return</span> <span class="s">'partial'</span>;
+}</span></pre>
+        </div>
+
+        <h4 style="margin-top: 16px;">Status Badge Styling</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Color</th>
+              <th>Icon</th>
+              <th>User Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>incomplete</code></td>
+              <td>Red</td>
+              <td>⚠️</td>
+              <td>Click "Add Marks"</td>
+            </tr>
+            <tr>
+              <td><code>partial</code></td>
+              <td>Amber</td>
+              <td>📋</td>
+              <td>Click "Complete Marks"</td>
+            </tr>
+            <tr>
+              <td><code>complete</code></td>
+              <td>Green</td>
+              <td>✅</td>
+              <td>Click "Edit Marks" if needed</td>
+            </tr>
+            <tr>
+              <td><code>pending_review</code></td>
+              <td>Blue</td>
+              <td>⏳</td>
+              <td>Awaiting admin approval</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============ BACKEND APIS ============ -->
+  <section id="api-backend">
+    <h2 class="section-heading" style="background: #eff6ff; --bs-bg-opacity: .3; padding: 10px; border-radius: 6px;">
+      <span class="section-num" style="background: var(--blue);">4</span>
+      Backend API Specifications (v2.0)
+    </h2>
+
+    <!-- GET /candidates -->
+    <div id="api-candidates">
+      <h3 class="sub-heading">Candidates List: GET /api/v1/results/{jobPostId}/candidates</h3>
+
+      <h4>Purpose</h4>
+      <p>Fetch paginated, filtered candidate list for marks entry table with virtual scrolling. Uses keyset pagination for efficient handling of 5000+ candidates.</p>
+
+      <h4>Query Parameters</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Required</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>limit</code></td>
+            <td>int</td>
+            <td>No (default 50)</td>
+            <td>Items per page (max 200)</td>
+          </tr>
+          <tr>
+            <td><code>cursor</code></td>
+            <td>string</td>
+            <td>No</td>
+            <td>Opaque cursor from previous response (keyset pagination)</td>
+          </tr>
+          <tr>
+            <td><code>sort_by</code></td>
+            <td>enum</td>
+            <td>No (default roll_number)</td>
+            <td>roll_number | full_name | enrollment_status | exam_center | marks_status</td>
+          </tr>
+          <tr>
+            <td><code>sort_direction</code></td>
+            <td>enum</td>
+            <td>No (default asc)</td>
+            <td>asc | desc</td>
+          </tr>
+          <tr>
+            <td><code>search</code></td>
+            <td>string</td>
+            <td>No</td>
+            <td>Search roll_number, full_name, candidate_id (full-text)</td>
+          </tr>
+          <tr>
+            <td><code>enrollment_status</code></td>
+            <td>array</td>
+            <td>No</td>
+            <td>enrolled | pending | rejected</td>
+          </tr>
+          <tr>
+            <td><code>exam_center</code></td>
+            <td>array</td>
+            <td>No</td>
+            <td>Exact match on exam center name</td>
+          </tr>
+          <tr>
+            <td><code>marks_status</code></td>
+            <td>array</td>
+            <td>No</td>
+            <td>complete | partial | incomplete | pending_review</td>
+          </tr>
+          <tr>
+            <td><code>include_marks</code></td>
+            <td>bool</td>
+            <td>No (default false)</td>
+            <td>Include detailed marks_summary (slower, use sparingly)</td>
+          </tr>
+          <tr>
+            <td><code>include_audit_log</code></td>
+            <td>bool</td>
+            <td>No (default false)</td>
+            <td>Include last_edit_by and last_edit_at</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4>Response Example</h4>
+      <div class="code-wrap">
+        <div class="code-label"><span class="lang">JSON</span></div>
+        <pre>{
+  <span class="s">"success"</span>: <span class="k">true</span>,
+  <span class="s">"data"</span>: [
+    {
+      <span class="s">"id"</span>: <span class="nu">1</span>,
+      <span class="s">"roll_number"</span>: <span class="s">"A-001"</span>,
+      <span class="s">"candidate_id"</span>: <span class="s">"C-12345"</span>,
+      <span class="s">"full_name"</span>: <span class="s">"Ahmed Ali"</span>,
+      <span class="s">"enrollment_status"</span>: <span class="s">"enrolled"</span>,
+      <span class="s">"exam_center"</span>: <span class="s">"Muzaffarabad Center"</span>,
+      <span class="s">"marks_status"</span>: <span class="s">"complete"</span>,
+      <span class="s">"marks_summary"</span>: {
+        <span class="s">"written"</span>: { <span class="s">"total"</span>: <span class="nu">100</span>, <span class="s">"obtained"</span>: <span class="nu">85</span> },
+        <span class="s">"viva"</span>: { <span class="s">"total"</span>: <span class="nu">20</span>, <span class="s">"obtained"</span>: <span class="nu">18</span> },
+        <span class="s">"interview"</span>: { <span class="s">"total"</span>: <span class="nu">30</span>, <span class="s">"obtained"</span>: <span class="nu">28</span> }
+      }
+    }
+  ],
+  <span class="s">"pagination"</span>: {
+    <span class="s">"total"</span>: <span class="nu">5000</span>,
+    <span class="s">"limit"</span>: <span class="nu">50</span>,
+    <span class="s">"returned"</span>: <span class="nu">50</span>,
+    <span class="s">"has_more"</span>: <span class="k">true</span>,
+    <span class="s">"next_cursor"</span>: <span class="s">"eyJpZCI6NTAsInJvbGxfbnVtYmVyIjoiQS01MCJ9"</span>
+  },
+  <span class="s">"filters_applied"</span>: {
+    <span class="s">"search"</span>: <span class="s">"Ahmed"</span>,
+    <span class="s">"enrollment_status"</span>: [<span class="s">"enrolled"</span>],
+    <span class="s">"exam_center"</span>: [<span class="s">"Muzaffarabad"</span>],
+    <span class="s">"marks_status"</span>: [<span class="s">"complete"</span>]
+  }
+}</span></pre>
+      </div>
+
+      <h4>Performance Targets</h4>
+      <ul>
+        <li>First page load (50 rows): &lt; 200ms</li>
+        <li>Keyset pagination next: &lt; 100ms</li>
+        <li>Filtered search: &lt; 500ms</li>
+      </ul>
+    </div>
+
+    <!-- PUT /marks -->
+    <div id="api-marks">
+      <h3 class="sub-heading">Save Marks: PUT /api/v1/results/{jobPostId}/candidates/{candidateId}/marks</h3>
+
+      <h4>Purpose</h4>
+      <p>Save or update exam marks for a candidate. Unified endpoint for both new entries (auto-save) and edits (approval workflow).</p>
+
+      <h4>Request Body</h4>
+      <div class="code-wrap">
+        <div class="code-label"><span class="lang">JSON</span></div>
+        <pre>{
+  <span class="s">"exam_date"</span>: <span class="s">"2025-05-10"</span>,
+  <span class="s">"exam_center"</span>: <span class="s">"Muzaffarabad Center"</span>,
+  <span class="s">"sections"</span>: [
+    { <span class="s">"section_key"</span>: <span class="s">"written"</span>, <span class="s">"obtained"</span>: <span class="nu">85</span> },
+    { <span class="s">"section_key"</span>: <span class="s">"viva"</span>, <span class="s">"obtained"</span>: <span class="nu">18</span> },
+    { <span class="s">"section_key"</span>: <span class="s">"interview"</span>, <span class="s">"obtained"</span>: <span class="nu">28</span> }
+  ],
+  <span class="s">"edit_reason"</span>: <span class="s">"Viva marks recalculated"</span>  <span class="cm">// Only if editing existing marks</span>
+}</span></pre>
+      </div>
+
+      <h4>Response: New Entry</h4>
+      <div class="code-wrap">
+        <div class="code-label"><span class="lang">JSON</span></div>
+        <pre>{
+  <span class="s">"success"</span>: <span class="k">true</span>,
+  <span class="s">"message"</span>: <span class="s">"Marks saved successfully"</span>,
+  <span class="s">"data"</span>: {
+    <span class="s">"candidate_id"</span>: <span class="nu">1</span>,
+    <span class="s">"marks_status"</span>: <span class="s">"complete"</span>,
+    <span class="s">"marks_summary"</span>: { <span class="cm">/* ... */</span> }
+  }
+}</span></pre>
+      </div>
+
+      <h4>Response: Edit Pending Approval</h4>
+      <div class="code-wrap">
+        <div class="code-label"><span class="lang">JSON</span></div>
+        <pre>{
+  <span class="s">"success"</span>: <span class="k">true</span>,
+  <span class="s">"message"</span>: <span class="s">"Mark changes submitted for approval"</span>,
+  <span class="s">"data"</span>: {
+    <span class="s">"candidate_id"</span>: <span class="nu">1</span>,
+    <span class="s">"marks_status"</span>: <span class="s">"pending_review"</span>,
+    <span class="s">"edit_id"</span>: <span class="nu">42</span>,
+    <span class="s">"approval_pending"</span>: <span class="k">true</span>
+  }
+}</span></pre>
+      </div>
+
+      <h4>Validation Rules (Server-Side)</h4>
+      <ul>
+        <li>exam_date: Required, valid date format (YYYY-MM-DD)</li>
+        <li>exam_center: Required, must match available centers for job</li>
+        <li>obtained_marks: Must be numeric, ≥ 0, ≤ max_marks from ExamSubjectTemplate</li>
+        <li>edit_reason (if edit): Required, min 10 characters, max 500</li>
+        <li>Roll number must be enrolled for the job</li>
+      </ul>
+
+      <h4>Authorization</h4>
+      <ul>
+        <li>Required role: data_entry_officer+</li>
+        <li>Edit approval only available to: results_admin+</li>
+      </ul>
+    </div>
+
+    <!-- CSV Endpoints -->
+    <div id="api-csv">
+      <h3 class="sub-heading">CSV Operations</h3>
+
+      <h5>1. Download Template: GET /api/v1/results/{jobPostId}/csv-template</h5>
+      <div class="api-endpoint">
+        <span class="method-get">GET</span> /api/v1/results/{jobPostId}/csv-template
+      </div>
+      <p><strong>Returns:</strong> CSV file attachment (Content-Type: text/csv)</p>
+      <p><strong>Filename:</strong> [JobTitle]_[ExamDate]_marks_template.csv</p>
+
+      <h5>2. Preview Import: POST /api/v1/results/{jobPostId}/marks-import/preview</h5>
+      <div class="api-endpoint">
+        <span class="method-post">POST</span> /api/v1/results/{jobPostId}/marks-import/preview
+      </div>
+      <p><strong>Request:</strong> FormData with file + dry_run=true</p>
+      <p><strong>Response:</strong> Preview with valid/error rows + file_hash (cached 30 min)</p>
+
+      <h5>3. Confirm Import: POST /api/v1/results/{jobPostId}/marks-import/confirm</h5>
+      <div class="api-endpoint">
+        <span class="method-post">POST</span> /api/v1/results/{jobPostId}/marks-import/confirm
+      </div>
+      <p><strong>Request:</strong> { file_hash, skip_invalid_rows }</p>
+      <p><strong>Response:</strong> { imported, skipped, batch_id }</p>
+    </div>
+
+    <!-- Pagination Strategy -->
+    <div id="api-pagination">
+      <h3 class="sub-heading">Pagination Strategy: Keyset (Cursor-Based)</h3>
+
+      <h4>Why Keyset Pagination?</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Aspect</th>
+            <th>Offset Pagination</th>
+            <th>Keyset Pagination</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Query Performance</td>
+            <td>O(n) - scans to skip</td>
+            <td>O(1) - direct lookup ✅</td>
+          </tr>
+          <tr>
+            <td>Consistency</td>
+            <td>Duplicates on data change</td>
+            <td>Guaranteed consistency ✅</td>
+          </tr>
+          <tr>
+            <td>Scalability</td>
+            <td>Slow at page 100+</td>
+            <td>Constant speed ✅</td>
+          </tr>
+          <tr>
+            <td>Implementation Complexity</td>
+            <td>Simple</td>
+            <td>Moderate (but worth it)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4>How It Works</h4>
+      <ol>
+        <li><strong>First request:</strong> Client calls GET /candidates without cursor</li>
+        <li><strong>Response includes:</strong> 50 rows + next_cursor (base64-encoded)</li>
+        <li><strong>Next page:</strong> Client passes cursor back → Server positions at cursor and fetches next 50</li>
+        <li><strong>No gaps or duplicates:</strong> Even if rows are deleted mid-pagination, keyset naturally skips them</li>
+      </ol>
+
+      <h4>Cursor Format (Opaque to Client)</h4>
+      <p><code>eyJpZCI6NTAsInJvbGxfbnVtYmVyIjoiQS01MCJ9</code> = base64({ id: 50, roll_number: "A-50" })</p>
+
+      <h4>Edge Cases</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Scenario</th>
+            <th>Handling</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Invalid/expired cursor</td>
+            <td>Return 400: "Cursor expired. Start from first page."</td>
+          </tr>
+          <tr>
+            <td>Filter changed mid-pagination</td>
+            <td>Cursor becomes incompatible; reset to page 1</td>
+          </tr>
+          <tr>
+            <td>Sort order changed</td>
+            <td>Same as above; new sort order invalidates cursor</td>
+          </tr>
+          <tr>
+            <td>limit > 200</td>
+            <td>Return 422: "Limit must be ≤ 200"</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </section>
+
+  <!-- ============ DATABASE SCHEMA ============ -->
+  <section id="db-schema">
+    <h2 class="section-heading" style="background: #f0fdf4; --bs-bg-opacity: .3; padding: 10px; border-radius: 6px;">
+      <span class="section-num" style="background: var(--green);">5</span>
+      Database Schema Changes (v2.0)
+    </h2>
+
+    <h3 class="sub-heading">1. exam_results Table (Add Columns)</h3>
+    <div class="code-wrap">
+      <div class="code-label"><span class="lang">SQL</span></div>
+      <pre><span class="k">ALTER TABLE</span> exam_results <span class="k">ADD</span> <span class="k">COLUMN</span> (
+  <span class="s">`exam_date`</span> DATE <span class="k">NOT NULL</span>,
+  <span class="s">`exam_center`</span> <span class="t">VARCHAR</span>(<span class="nu">255</span>) <span class="k">NOT NULL</span>,
+  <span class="s">`marks_status`</span> <span class="t">ENUM</span>(<span class="s">'complete'</span>, <span class="s">'partial'</span>, <span class="s">'incomplete'</span>, <span class="s">'pending_review'</span>) <span class="k">DEFAULT</span> <span class="s">'incomplete'</span>,
+  <span class="s">`pending_review`</span> <span class="t">BOOLEAN</span> <span class="k">DEFAULT</span> <span class="k">FALSE</span>,
+  <span class="s">`import_batch_id`</span> <span class="t">VARCHAR</span>(<span class="nu">50</span>) <span class="k">NULL</span>,
+  <span class="s">`updated_by`</span> <span class="t">BIGINT UNSIGNED</span> <span class="k">NULL</span>,
+  <span class="s">`updated_at`</span> <span class="t">TIMESTAMP</span> <span class="k">NULL</span>
+) <span class="k">AFTER</span> <span class="s">`obtained_marks`</span>;</span></pre>
+    </div>
+
+    <h3 class="sub-heading">2. mark_edits Table (New)</h3>
+    <div class="code-wrap">
+      <div class="code-label"><span class="lang">SQL</span></div>
+      <pre><span class="k">CREATE TABLE</span> mark_edits (
+  <span class="s">`id`</span> <span class="t">BIGINT UNSIGNED</span> <span class="k">PRIMARY KEY AUTO_INCREMENT</span>,
+  <span class="s">`exam_result_id`</span> <span class="t">BIGINT UNSIGNED NOT NULL</span>,
+  <span class="s">`original_obtained_marks`</span> <span class="t">DECIMAL</span>(<span class="nu">5</span>,<span class="nu">2</span>),
+  <span class="s">`new_obtained_marks`</span> <span class="t">DECIMAL</span>(<span class="nu">5</span>,<span class="nu">2</span>),
+  <span class="s">`edit_reason`</span> <span class="t">TEXT NOT NULL</span>,
+  <span class="s">`status`</span> <span class="t">ENUM</span>(<span class="s">'pending'</span>, <span class="s">'approved'</span>, <span class="s">'rejected'</span>) <span class="k">DEFAULT</span> <span class="s">'pending'</span>,
+  <span class="s">`approved_by`</span> <span class="t">BIGINT UNSIGNED NULL</span>,
+  <span class="s">`approval_reason`</span> <span class="t">TEXT NULL</span>,
+  <span class="s">`created_by`</span> <span class="t">BIGINT UNSIGNED NOT NULL</span>,
+  <span class="s">`created_at`</span> <span class="t">TIMESTAMP</span>,
+  <span class="s">`updated_at`</span> <span class="t">TIMESTAMP NULL</span>,
+  <span class="k">FOREIGN KEY</span> (exam_result_id) <span class="k">REFERENCES</span> exam_results(id) <span class="k">ON DELETE CASCADE</span>
+);</span></pre>
+    </div>
+
+    <h3 class="sub-heading">3. Database Indices</h3>
+    <div class="code-wrap">
+      <div class="code-label"><span class="lang">SQL</span></div>
+      <pre><span class="cm">-- Composite indices for filtering + sorting</span>
+<span class="k">CREATE INDEX</span> idx_candidates_enrollment_roll 
+  <span class="k">ON</span> exam_results(job_post_id, enrollment_status, roll_number);
+
+<span class="k">CREATE INDEX</span> idx_candidates_marks_status 
+  <span class="k">ON</span> exam_results(job_post_id, marks_status, created_at);
+
+<span class="cm">-- Full-text index for search</span>
+<span class="k">CREATE FULLTEXT INDEX</span> ft_candidates_search 
+  <span class="k">ON</span> candidates(roll_number, full_name, candidate_id);
+
+<span class="cm">-- For import batch tracking</span>
+<span class="k">CREATE INDEX</span> idx_import_batch 
+  <span class="k">ON</span> exam_results(import_batch_id);</span></pre>
+    </div>
+  </section>
+
+  <!-- ============ VALIDATION ============ -->
+  <section id="validation">
+    <h2 class="section-heading" style="background: #f5f3ff; --bs-bg-opacity: .3; padding: 10px; border-radius: 6px;">
+      <span class="section-num" style="background: var(--purple);">6</span>
+      Validation Rules & Error Handling
+    </h2>
+
+    <h3 class="sub-heading">Client-Side Validation (MarkEntryDialog)</h3>
+    <ul>
+      <li><strong>exam_date:</strong> Required, valid date (YYYY-MM-DD)</li>
+      <li><strong>exam_center:</strong> Required, must match dropdown options</li>
+      <li><strong>obtained_marks per section:</strong> Numeric, ≥ 0, ≤ total</li>
+      <li><strong>reason (if edit):</strong> Required, min 10 chars, max 500</li>
+    </ul>
+
+    <h3 class="sub-heading">Server-Side Validation (Backend)</h3>
+    <ul>
+      <li>Duplicate all client validations (never trust client)</li>
+      <li>Verify candidate is enrolled for the job</li>
+      <li>Verify exam center exists and is active</li>
+      <li>Check role permissions (data_entry_officer+ for entry, results_admin+ for edits)</li>
+      <li>Validate marks against ExamSubjectTemplate maxima</li>
+    </ul>
+
+    <h3 class="sub-heading">CSV Import Validation</h3>
+    <ul>
+      <li>File size ≤ 50MB</li>
+      <li>File type: CSV (MIME: text/csv)</li>
+      <li>Required columns present in header</li>
+      <li>Roll numbers match enrolled candidates</li>
+      <li>Marks numeric and within bounds</li>
+      <li>obtained_marks ≤ total_marks per section</li>
+    </ul>
+
+    <h3 class="sub-heading">Error Response Format</h3>
+    <div class="code-wrap">
+      <div class="code-label"><span class="lang">JSON</span></div>
+      <pre>{
+  <span class="s">"success"</span>: <span class="k">false</span>,
+  <span class="s">"message"</span>: <span class="s">"Validation failed"</span>,
+  <span class="s">"errors"</span>: {
+    <span class="s">"marks.written"</span>: <span class="s">"Cannot exceed 100"</span>,
+    <span class="s">"reason"</span>: <span class="s">"Reason must be at least 10 characters"</span>
+  },
+  <span class="s">"status_code"</span>: <span class="nu">422</span>
+}</span></pre>
+    </div>
+  </section>
+
+  <!-- ============ SUMMARY & CHECKLIST ============ -->
+  <section id="summary">
+    <h2 class="section-heading" style="background: #fffbeb; --bs-bg-opacity: .3; padding: 10px; border-radius: 6px;">
+      <span class="section-num" style="background: var(--amber);">7</span>
+      Implementation Summary &amp; Checklist
+    </h2>
+
+    <h3 class="sub-heading">What's New in v2.0</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>User Story</th>
+          <th>Type</th>
+          <th>Priority</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Candidates Table + Filtering</td>
+          <td>UC-R01a</td>
+          <td>NEW</td>
+          <td>P0</td>
+        </tr>
+        <tr>
+          <td>Dialog Marks Entry</td>
+          <td>UC-R01b</td>
+          <td>NEW</td>
+          <td>P0</td>
+        </tr>
+        <tr>
+          <td>Edit Approval Workflow</td>
+          <td>UC-R01c</td>
+          <td>NEW</td>
+          <td>P1</td>
+        </tr>
+        <tr>
+          <td>CSV Template Download</td>
+          <td>UC-R02a</td>
+          <td>NEW</td>
+          <td>P0</td>
+        </tr>
+        <tr>
+          <td>CSV Upload + Preview</td>
+          <td>UC-R02b</td>
+          <td>ENHANCED</td>
+          <td>P0</td>
+        </tr>
+        <tr>
+          <td>Marks Status Tracking</td>
+          <td>UC-R02c</td>
+          <td>NEW</td>
+          <td>P0</td>
+        </tr>
+        <tr>
+          <td>Keyset Pagination</td>
+          <td>Infra</td>
+          <td>NEW</td>
+          <td>P0</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub-heading">Backend Implementation Checklist</h3>
+    <ul>
+      <li><input type="checkbox"> Create database migrations for new columns + indices</li>
+      <li><input type="checkbox"> Create mark_edits table for approval workflow</li>
+      <li><input type="checkbox"> Create CandidateListService with keyset pagination logic</li>
+      <li><input type="checkbox"> Create CandidatesListRequest validation class</li>
+      <li><input type="checkbox"> Update CandidatesController with index() endpoint</li>
+      <li><input type="checkbox"> Create MarkService with save/edit logic</li>
+      <li><input type="checkbox"> Create MarksStatusService for status calculation</li>
+      <li><input type="checkbox"> Create CandidateExportService for CSV template generation</li>
+      <li><input type="checkbox"> Create ImportPipelineService for CSV import (preview + confirm)</li>
+      <li><input type="checkbox"> Add validation rules (server-side)</li>
+      <li><input type="checkbox"> Test pagination with 5000+ mock candidates</li>
+      <li><input type="checkbox"> Test filters (search, enrollment_status, exam_center, marks_status)</li>
+      <li><input type="checkbox"> Test cursor generation and validation</li>
+      <li><input type="checkbox"> Verify query performance (&lt; 200ms first page, &lt; 100ms pagination)</li>
+      <li><input type="checkbox"> Test edge cases (invalid cursor, empty results, large limits)</li>
+      <li><input type="checkbox"> Document API in Postman/Swagger</li>
+      <li><input type="checkbox"> Test approval workflow (edit → pending_review → approve/reject)</li>
+      <li><input type="checkbox"> Test CSV import (preview → confirm with file_hash)</li>
+    </ul>
+
+    <h3 class="sub-heading">Key Architectural Decisions</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Decision</th>
+          <th>Rationale</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Keyset Pagination</strong> (not offset)</td>
+          <td>O(1) query performance, handles 5000+ rows efficiently, no duplicates on data change</td>
+        </tr>
+        <tr>
+          <td><strong>Dialog-Based Entry</strong> (not inline)</td>
+          <td>Complex hierarchical marks require form validation; safer than inline editing</td>
+        </tr>
+        <tr>
+          <td><strong>Approval Workflow</strong> for edits</td>
+          <td>Audit trail + role-based approval ensures compliance; prevents accidental overwrites</td>
+        </tr>
+        <tr>
+          <td><strong>file_hash Security</strong> in CSV import</td>
+          <td>Prevents "swap file mid-confirmation" attacks; validates data integrity</td>
+        </tr>
+        <tr>
+          <td><strong>Marks Status Calculated</strong> (not stored)</td>
+          <td>Single source of truth; recalculated on every save ensures consistency</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub-heading">Performance Targets</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Operation</th>
+          <th>Target</th>
+          <th>Strategy</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>First page (50 candidates)</td>
+          <td>&lt; 200ms</td>
+          <td>Composite index + eager loading + cache</td>
+        </tr>
+        <tr>
+          <td>Keyset pagination next</td>
+          <td>&lt; 100ms</td>
+          <td>Direct cursor lookup (no full table scan)</td>
+        </tr>
+        <tr>
+          <td>Filtered search</td>
+          <td>&lt; 500ms</td>
+          <td>Full-text index + limit select columns</td>
+        </tr>
+        <tr>
+          <td>CSV template generation</td>
+          <td>&lt; 2s</td>
+          <td>Query + stream response (no in-memory buffering)</td>
+        </tr>
+        <tr>
+          <td>CSV import preview</td>
+          <td>&lt; 3s</td>
+          <td>Lazy collection for row-by-row parsing</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="footer">
+    AJK PSC Admin Portal — Results Module Specification v2.0 &nbsp;·&nbsp;
+    PHP 8.3+ · ReactJS + TypeScript · Laravel 12 &nbsp;·&nbsp;
+    Enhanced Mark Entry, CSV Management, Approval Workflow &nbsp;·&nbsp;
+    2026-05-11
+  </div>
+</main>
+
+<script>
+  // Active nav link on scroll
+  const links = document.querySelectorAll('.nav-link');
+  const sections = Array.from(document.querySelectorAll('[id]')).filter(el =>
+    ['H2','H3','DIV'].includes(el.tagName) || el.classList.contains('uc-box')
+  );
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const match = document.querySelector(`.nav-link[href="#${e.target.id}"]`);
+        if (match) match.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  document.querySelectorAll('[id]').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
